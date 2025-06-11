@@ -55,6 +55,9 @@ install(PROGRAMS
   src/example/multiple_uav_ctrl.py
   src/example/multiple_uav_waypts.py
   src/gazebo_sim/gazebo_px4_relay.py
+  #
+  src/user/mdp/mdp_20250506_single_agent_main.py
+  #
   DESTINATION lib/${PROJECT_NAME}
 )
 
@@ -72,6 +75,12 @@ install(DIRECTORY model
 # 安装 launch 文件
 install(DIRECTORY launch
   DESTINATION share/${PROJECT_NAME}
+)
+
+# 安装 Python 子模块 MDP_Planner
+install(DIRECTORY src/MDP_Planner
+  DESTINATION lib/${PROJECT_NAME}
+  FILES_MATCHING PATTERN "*.py"
 )
 
 ament_export_dependencies(rosidl_default_runtime)

@@ -1,0 +1,30 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/ywzheng/px4_ros_ws/install/px4_ros_com/include/**",
+        "/home/ywzheng/px4_ros_ws/install/drone_ros2_centralized_control/include/**",
+        "/home/ywzheng/px4_ros_ws/install/comp29_gazebo_bridge/include/**",
+        "/home/ywzheng/px4_ros_ws/install/px4_msgs/include/**",
+        "/home/ywzheng/px4_ros_ws/install/drone_ros2_centeralized_control/include/**",
+        "/home/ywzheng/px4_ros_ws/install/comp29msg/include/**",
+        "/opt/ros/foxy/include/**",
+        "/home/ywzheng/px4_ros_ws/src/comp29_gazebo_bridge/include/**",
+        "/home/ywzheng/px4_ros_ws/src/comp29msg/include/**",
+        "/home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/include/**",
+        "/home/ywzheng/px4_ros_ws/src/px4_ros_com/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}
