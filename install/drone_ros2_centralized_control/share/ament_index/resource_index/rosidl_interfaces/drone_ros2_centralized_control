@@ -1,0 +1,6 @@
+msg/AttitudeSetpoint2.idl
+msg/AttitudeSetpoint2.msg
+msg/UavCmd.idl
+msg/UavCmd.msg
+msg/UavState.idl
+msg/UavState.msg

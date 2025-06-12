@@ -1,0 +1,21 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from drone_ros2_centralized_control/msg/UavCmd.msg
+// generated code does not contain a copyright notice
+
+#include "std_msgs/msg/Header.idl"
+
+module drone_ros2_centralized_control {
+  module msg {
+    struct UavCmd {
+      std_msgs::msg::Header header;
+
+      @verbatim (language="comment", text=
+        " -1 for all uavs, 0 for none, begin from 1")
+      int32 id;
+
+      @verbatim (language="comment", text=
+        "  1 for arm, 0 for unchanged, -1 for disarm")
+      int32 is_arm;
+    };
+  };
+};

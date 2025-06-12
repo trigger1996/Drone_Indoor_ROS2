@@ -1,0 +1,8 @@
+{
+  "package_name": "drone_ros2_centralized_control",
+  "non_idl_tuples": [
+    "/home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control:msg/UavCmd.msg",
+    "/home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control:msg/UavState.msg",
+    "/home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control:msg/AttitudeSetpoint2.msg"
+  ]
+}

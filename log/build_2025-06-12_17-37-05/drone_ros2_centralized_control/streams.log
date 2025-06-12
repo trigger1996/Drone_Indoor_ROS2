@@ -1,0 +1,46 @@
+[0.008s] Invoking command in '/home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/build/drone_ros2_centralized_control': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ywzheng/px4_ros_ws/install/rviz_plugin:/home/ywzheng/px4_ros_ws/install/comp29planner:/home/ywzheng/px4_ros_ws/install/comp29localization:/home/ywzheng/px4_ros_ws/install/comp29hardware:/home/ywzheng/px4_ros_ws/install/comp29detector:/home/ywzheng/px4_ros_ws/install/comp29communicator:/opt/ros/foxy /usr/local/bin/cmake --build /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/build/drone_ros2_centralized_control -- -j12 -l12
+[0.021s] -- Found ament_cmake: 0.9.12 (/opt/ros/foxy/share/ament_cmake/cmake)
+[0.022s] [33mCMake Warning (dev) at /opt/ros/foxy/share/ament_cmake_core/cmake/core/python.cmake:22 (find_package):
+[0.022s]   Policy CMP0148 is not set: The FindPythonInterp and FindPythonLibs modules
+[0.022s]   are removed.  Run "cmake --help-policy CMP0148" for policy details.  Use
+[0.022s]   the cmake_policy command to set the policy and suppress this warning.
+[0.022s] 
+[0.022s] Call Stack (most recent call first):
+[0.022s]   /opt/ros/foxy/share/ament_cmake_core/cmake/core/all.cmake:53 (include)
+[0.022s]   /opt/ros/foxy/share/ament_cmake_core/cmake/ament_cmake_core-extras.cmake:17 (include)
+[0.022s]   /opt/ros/foxy/share/ament_cmake_core/cmake/ament_cmake_coreConfig.cmake:41 (include)
+[0.022s]   /opt/ros/foxy/share/ament_cmake/cmake/ament_cmake_export_dependencies-extras.cmake:15 (find_package)
+[0.023s]   /opt/ros/foxy/share/ament_cmake/cmake/ament_cmakeConfig.cmake:41 (include)
+[0.023s]   CMakeLists.txt:19 (find_package)
+[0.023s] This warning is for project developers.  Use -Wno-dev to suppress it.
+[0.023s] [0m
+[0.042s] -- Found PythonInterp: /usr/bin/python3 (found suitable version "3.8.10", minimum required is "3")
+[0.042s] -- Using PYTHON_EXECUTABLE: /usr/bin/python3
+[0.179s] -- Found rosidl_default_generators: 1.0.1 (/opt/ros/foxy/share/rosidl_default_generators/cmake)
+[0.180s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.182s] -- Found rosidl_adapter: 1.3.1 (/opt/ros/foxy/share/rosidl_adapter/cmake)
+[0.291s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.302s] -- Found rosidl_default_runtime: 1.0.1 (/opt/ros/foxy/share/rosidl_default_runtime/cmake)
+[0.304s] -- Found std_msgs: 2.0.5 (/opt/ros/foxy/share/std_msgs/cmake)
+[0.319s] -- Found rclpy: 1.0.13 (/opt/ros/foxy/share/rclpy/cmake)
+[0.319s] -- Found geometry_msgs: 2.0.5 (/opt/ros/foxy/share/geometry_msgs/cmake)
+[0.343s] -- Configuring incomplete, errors occurred!
+[0.344s] [31mCMake Error at CMakeLists.txt:26 (find_package):
+[0.344s]   By not providing "Findpx4_msgs.cmake" in CMAKE_MODULE_PATH this project has
+[0.344s]   asked CMake to find a package configuration file provided by "px4_msgs",
+[0.344s]   but CMake did not find one.
+[0.344s] 
+[0.344s]   Could not find a package configuration file provided by "px4_msgs" with any
+[0.344s]   of the following names:
+[0.344s] 
+[0.344s]     px4_msgsConfig.cmake
+[0.344s]     px4_msgs-config.cmake
+[0.344s] 
+[0.344s]   Add the installation prefix of "px4_msgs" to CMAKE_PREFIX_PATH or set
+[0.344s]   "px4_msgs_DIR" to a directory containing one of the above files.  If
+[0.344s]   "px4_msgs" provides a separate development package or SDK, be sure it has
+[0.344s]   been installed.
+[0.344s] 
+[0.344s] [0m
+[0.346s] make: *** [Makefile:1151: cmake_check_build_system] Error 1
+[0.348s] Invoked command in '/home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/build/drone_ros2_centralized_control' returned '2': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ywzheng/px4_ros_ws/install/rviz_plugin:/home/ywzheng/px4_ros_ws/install/comp29planner:/home/ywzheng/px4_ros_ws/install/comp29localization:/home/ywzheng/px4_ros_ws/install/comp29hardware:/home/ywzheng/px4_ros_ws/install/comp29detector:/home/ywzheng/px4_ros_ws/install/comp29communicator:/opt/ros/foxy /usr/local/bin/cmake --build /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/build/drone_ros2_centralized_control -- -j12 -l12

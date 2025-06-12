@@ -1,0 +1,215 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-9c610cef6b5b6643e78c.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15
+					]
+				},
+				{
+					"build" : "drone_ros2_centralized_control__py",
+					"jsonFile" : "directory-drone_ros2_centralized_control__py-58a3973237afe16d5ccc.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "build/drone_ros2_centralized_control/drone_ros2_centralized_control__py",
+					"targetIndexes" : 
+					[
+						2
+					]
+				}
+			],
+			"name" : "",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0,
+						1
+					],
+					"name" : "drone_ros2_centralized_control",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "drone_ros2_centralized_control::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-drone_ros2_centralized_control-a747e6df0f5c30216f99.json",
+					"name" : "drone_ros2_centralized_control",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "drone_ros2_centralized_control__cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-drone_ros2_centralized_control__cpp-09c3d19b54682a76e3de.json",
+					"name" : "drone_ros2_centralized_control__cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "drone_ros2_centralized_control__py::@a8d928a286386fdb87a3",
+					"jsonFile" : "target-drone_ros2_centralized_control__py-61ecb5311e4385811257.json",
+					"name" : "drone_ros2_centralized_control__py",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "drone_ros2_centralized_control__python::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-drone_ros2_centralized_control__python-e1b254363efe9175bd24.json",
+					"name" : "drone_ros2_centralized_control__python",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "drone_ros2_centralized_control__rosidl_generator_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-drone_ros2_centralized_control__rosidl_generator_c-6a5145107296e8b6a972.json",
+					"name" : "drone_ros2_centralized_control__rosidl_generator_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "drone_ros2_centralized_control__rosidl_typesupport_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-drone_ros2_centralized_control__rosidl_typesupport_c-be3adf2d737eaf4afdf0.json",
+					"name" : "drone_ros2_centralized_control__rosidl_typesupport_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "drone_ros2_centralized_control__rosidl_typesupport_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-drone_ros2_centralized_control__rosidl_typesupport_c__pyext-0c9822e80903850a0322.json",
+					"name" : "drone_ros2_centralized_control__rosidl_typesupport_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "drone_ros2_centralized_control__rosidl_typesupport_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-drone_ros2_centralized_control__rosidl_typesupport_cpp-12b793d0e80ac397d976.json",
+					"name" : "drone_ros2_centralized_control__rosidl_typesupport_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "drone_ros2_centralized_control__rosidl_typesupport_fastrtps_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-drone_ros2_centralized_control__rosidl_typesupport_fastrtps_c-0bcf68432452a5613c0b.json",
+					"name" : "drone_ros2_centralized_control__rosidl_typesupport_fastrtps_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "drone_ros2_centralized_control__rosidl_typesupport_fastrtps_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-drone_ros2_centralized_control__rosidl_typesupport_fastrtps_c__pyext-ebe62638e62978d692e9.json",
+					"name" : "drone_ros2_centralized_control__rosidl_typesupport_fastrtps_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "drone_ros2_centralized_control__rosidl_typesupport_fastrtps_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-drone_ros2_centralized_control__rosidl_typesupport_fastrtps_cpp-ef82f47b0947c0e65e9a.json",
+					"name" : "drone_ros2_centralized_control__rosidl_typesupport_fastrtps_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "drone_ros2_centralized_control__rosidl_typesupport_introspection_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-drone_ros2_centralized_control__rosidl_typesupport_introspection_c-3b32c5e15990daf4019d.json",
+					"name" : "drone_ros2_centralized_control__rosidl_typesupport_introspection_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "drone_ros2_centralized_control__rosidl_typesupport_introspection_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-drone_ros2_centralized_control__rosidl_typesupport_introspection_c__pyext-fe96537e63c2350696b7.json",
+					"name" : "drone_ros2_centralized_control__rosidl_typesupport_introspection_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "drone_ros2_centralized_control__rosidl_typesupport_introspection_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-drone_ros2_centralized_control__rosidl_typesupport_introspection_cpp-ff0bf33de99176eb5d97.json",
+					"name" : "drone_ros2_centralized_control__rosidl_typesupport_introspection_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "drone_ros2_centralized_control_uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-drone_ros2_centralized_control_uninstall-d53d95ac7db36cb70301.json",
+					"name" : "drone_ros2_centralized_control_uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-uninstall-95a128457bcde786707d.json",
+					"name" : "uninstall",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/build/drone_ros2_centralized_control",
+		"source" : "/home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 7
+	}
+}

@@ -1,0 +1,3 @@
+/home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/build/drone_ros2_centralized_control/rosidl_adapter/drone_ros2_centralized_control:msg/UavCmd.idl
+/home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/build/drone_ros2_centralized_control/rosidl_adapter/drone_ros2_centralized_control:msg/UavState.idl
+/home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/build/drone_ros2_centralized_control/rosidl_adapter/drone_ros2_centralized_control:msg/AttitudeSetpoint2.idl

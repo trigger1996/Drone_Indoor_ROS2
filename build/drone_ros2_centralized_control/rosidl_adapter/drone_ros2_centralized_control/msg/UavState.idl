@@ -1,0 +1,188 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from drone_ros2_centralized_control/msg/UavState.msg
+// generated code does not contain a copyright notice
+
+#include "std_msgs/msg/Header.idl"
+
+module drone_ros2_centralized_control {
+  module msg {
+    typedef float float__4[4];
+    typedef float float__3[3];
+    module UavState_Constants {
+      const int32 RELATIVE_TIMESTAMP_INVALID = 2147483647;
+      const uint8 CLIPPING_X = 1;
+      const uint8 CLIPPING_Y = 2;
+      const uint8 CLIPPING_Z = 4;
+    };
+    struct UavState {
+      std_msgs::msg::Header header;
+
+      @verbatim (language="comment", text=
+        " time since system start (microseconds)")
+      uint64 timestamp;
+
+      int32 id;
+
+      int32 mavtype;
+
+      int32 autopilot;
+
+      int32 base_mode;
+
+      int32 custom_mode;
+
+      int32 system_status;
+
+      int32 connected;
+
+      @verbatim (language="comment", text=
+        " Added")
+      int8 is_armed;
+
+      float bat_voltage;
+
+      float bat_remaining;
+
+      @verbatim (language="comment", text=
+        " From Vehicle Attitude" "\n"
+        "       This is similar to the mavlink message ATTITUDE_QUATERNION, but for onboard use" "\n"
+        "" "\n"
+        " Quaternion rotation from the FRD body frame to the NED earth frame")
+      float__4 q;
+
+      @verbatim (language="comment", text=
+        " gyro timstamp is equal to the timestamp of the message" "\n"
+        " average angular rate measured in the FRD body frame XYZ-axis in rad/s over the last gyro sampling period")
+      float__3 gyro_rad;
+
+      @verbatim (language="comment", text=
+        " gyro measurement sampling period in microseconds")
+      uint32 gyro_integral_dt;
+
+      @verbatim (language="comment", text=
+        " timestamp + accelerometer_timestamp_relative = Accelerometer timestamp")
+      int32 accelerometer_timestamp_relative;
+
+      @verbatim (language="comment", text=
+        " average value acceleration measured in the FRD body frame XYZ-axis in m/s^2 over the last accelerometer sampling period")
+      float__3 accelerometer_m_s2;
+
+      @verbatim (language="comment", text=
+        " accelerometer measurement sampling period in microseconds")
+      uint32 accelerometer_integral_dt;
+
+      @verbatim (language="comment", text=
+        " bitfield indicating if there was any accelerometer clipping (per axis) during the integration time frame")
+      uint8 accelerometer_clipping;
+
+      @verbatim (language="comment", text=
+        " bitfield indicating if there was any gyro clipping (per axis) during the integration time frame")
+      uint8 gyro_clipping;
+
+      @verbatim (language="comment", text=
+        " From EKF2 NED Frame" "\n"
+        "       Fused local position in NED." "\n"
+        "       The coordinate system origin is the vehicle position at the time when the EKF2-module was started." "\n"
+        " true if x and y are valid")
+      boolean xy_valid;
+
+      @verbatim (language="comment", text=
+        " true if z is valid")
+      boolean z_valid;
+
+      @verbatim (language="comment", text=
+        " true if vx and vy are valid")
+      boolean v_xy_valid;
+
+      @verbatim (language="comment", text=
+        " true if vz is valid")
+      boolean v_z_valid;
+
+      @verbatim (language="comment", text=
+        " Position in local NED frame" "\n"
+        " North position in NED earth-fixed frame, (metres)")
+      float x;
+
+      @verbatim (language="comment", text=
+        " East position in NED earth-fixed frame, (metres)")
+      float y;
+
+      @verbatim (language="comment", text=
+        " Down position (negative altitude) in NED earth-fixed frame, (metres)")
+      float z;
+
+      @verbatim (language="comment", text=
+        " Velocity in NED frame" "\n"
+        " North velocity in NED earth-fixed frame, (metres/sec)")
+      float vx;
+
+      @verbatim (language="comment", text=
+        " East velocity in NED earth-fixed frame, (metres/sec)")
+      float vy;
+
+      @verbatim (language="comment", text=
+        " Down velocity in NED earth-fixed frame, (metres/sec)")
+      float vz;
+
+      @verbatim (language="comment", text=
+        " Acceleration in NED frame" "\n"
+        " North velocity derivative in NED earth-fixed frame, (metres/sec^2)")
+      float ax;
+
+      @verbatim (language="comment", text=
+        " East velocity derivative in NED earth-fixed frame, (metres/sec^2)")
+      float ay;
+
+      @verbatim (language="comment", text=
+        " Down velocity derivative in NED earth-fixed frame, (metres/sec^2)")
+      float az;
+
+      @verbatim (language="comment", text=
+        " Euler yaw angle transforming the tangent plane relative to NED earth-fixed frame, -PI..+PI,  (radians)")
+      float heading;
+
+      float delta_heading;
+
+      boolean heading_good_for_control;
+
+      @verbatim (language="comment", text=
+        " From VehicleGlobalPosition" "\n"
+        "       Fused global position in WGS84." "\n"
+        "       This struct contains global position estimation. It is not the raw GPS" "\n"
+        "       measurement (@see vehicle_gps_position). This topic is usually published by the position" "\n"
+        "       estimator, which will take more sources of information into account than just GPS," "\n"
+        "       e.g. control inputs of the vehicle in a Kalman-filter implementation." "\n"
+        "" "\n"
+        " Latitude, (degrees)")
+      double lat;
+
+      @verbatim (language="comment", text=
+        " Longitude, (degrees)")
+      double lon;
+
+      @verbatim (language="comment", text=
+        " Altitude AMSL, (meters)")
+      float alt;
+
+      @verbatim (language="comment", text=
+        " Standard deviation of horizontal position error, (metres)")
+      float eph;
+
+      @verbatim (language="comment", text=
+        " Standard deviation of vertical position error, (metres)")
+      float epv;
+
+      @verbatim (language="comment", text=
+        " Terrain altitude WGS84, (metres)")
+      float terrain_alt;
+
+      @verbatim (language="comment", text=
+        " Terrain altitude estimate is valid")
+      boolean terrain_alt_valid;
+
+      @verbatim (language="comment", text=
+        " True if this position is estimated through dead-reckoning")
+      boolean dead_reckoning;
+    };
+  };
+};

@@ -1,0 +1,274 @@
+[  2%] Built target drone_ros2_centralized_control__cpp
+[ 12%] Built target drone_ros2_centralized_control__rosidl_generator_c
+[ 31%] Built target drone_ros2_centralized_control__rosidl_typesupport_cpp
+[ 34%] Built target drone_ros2_centralized_control__rosidl_typesupport_c
+[ 44%] Built target drone_ros2_centralized_control__rosidl_typesupport_fastrtps_cpp
+[ 55%] Built target drone_ros2_centralized_control__rosidl_typesupport_introspection_cpp
+[ 65%] Built target drone_ros2_centralized_control__rosidl_typesupport_introspection_c
+[ 76%] Built target drone_ros2_centralized_control__rosidl_typesupport_fastrtps_c
+[ 76%] Built target drone_ros2_centralized_control
+[ 78%] Built target drone_ros2_centralized_control__py
+[ 87%] Built target drone_ros2_centralized_control__python
+[ 91%] Built target drone_ros2_centralized_control__rosidl_typesupport_fastrtps_c__pyext
+[ 95%] Built target drone_ros2_centralized_control__rosidl_typesupport_c__pyext
+[100%] Built target drone_ros2_centralized_control__rosidl_typesupport_introspection_c__pyext
+-- Install configuration: ""
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/ament_index/resource_index/rosidl_interfaces/drone_ros2_centralized_control
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/uav_state.h
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/attitude_setpoint2__functions.h
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/uav_state__struct.h
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/uav_state__functions.c
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/uav_cmd__functions.c
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/uav_state__functions.h
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/uav_cmd__struct.h
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/attitude_setpoint2__functions.c
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/attitude_setpoint2__type_support.h
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/attitude_setpoint2__struct.h
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/uav_cmd__functions.h
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/uav_state__type_support.h
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/uav_cmd__type_support.h
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/rosidl_generator_c__visibility_control.h
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/uav_cmd.h
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/attitude_setpoint2.h
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/environment/library_path.sh
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/environment/library_path.dsv
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/libdrone_ros2_centralized_control__rosidl_generator_c.so
+-- Set non-toolchain portion of runtime path of "/home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/libdrone_ros2_centralized_control__rosidl_generator_c.so" to ""
+-- Up-to-date: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control
+-- Up-to-date: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/rosidl_typesupport_fastrtps_c__visibility_control.h
+-- Up-to-date: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/uav_cmd__rosidl_typesupport_fastrtps_c.h
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/uav_state__rosidl_typesupport_fastrtps_c.h
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/attitude_setpoint2__rosidl_typesupport_fastrtps_c.h
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/libdrone_ros2_centralized_control__rosidl_typesupport_fastrtps_c.so
+-- Set non-toolchain portion of runtime path of "/home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/libdrone_ros2_centralized_control__rosidl_typesupport_fastrtps_c.so" to ""
+-- Up-to-date: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control
+-- Up-to-date: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h
+-- Up-to-date: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/uav_cmd__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/attitude_setpoint2__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/dds_fastrtps
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/uav_state__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/libdrone_ros2_centralized_control__rosidl_typesupport_fastrtps_cpp.so
+-- Set non-toolchain portion of runtime path of "/home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/libdrone_ros2_centralized_control__rosidl_typesupport_fastrtps_cpp.so" to ""
+-- Up-to-date: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control
+-- Up-to-date: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/rosidl_typesupport_introspection_c__visibility_control.h
+-- Up-to-date: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/uav_state__type_support.c
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/attitude_setpoint2__type_support.c
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/uav_cmd__type_support.c
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/uav_state__rosidl_typesupport_introspection_c.h
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/uav_cmd__rosidl_typesupport_introspection_c.h
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/attitude_setpoint2__rosidl_typesupport_introspection_c.h
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/libdrone_ros2_centralized_control__rosidl_typesupport_introspection_c.so
+-- Set non-toolchain portion of runtime path of "/home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/libdrone_ros2_centralized_control__rosidl_typesupport_introspection_c.so" to ""
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/libdrone_ros2_centralized_control__rosidl_typesupport_c.so
+-- Set non-toolchain portion of runtime path of "/home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/libdrone_ros2_centralized_control__rosidl_typesupport_c.so" to ""
+-- Up-to-date: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control
+-- Up-to-date: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/rosidl_generator_cpp__visibility_control.hpp
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/uav_state.hpp
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/attitude_setpoint2.hpp
+-- Up-to-date: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/uav_cmd__builder.hpp
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/uav_state__builder.hpp
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/uav_cmd__type_support.hpp
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/attitude_setpoint2__builder.hpp
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/uav_state__struct.hpp
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/uav_state__traits.hpp
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/uav_cmd__struct.hpp
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/uav_cmd__traits.hpp
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/attitude_setpoint2__type_support.hpp
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/attitude_setpoint2__struct.hpp
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/uav_state__type_support.hpp
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/attitude_setpoint2__traits.hpp
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/uav_cmd.hpp
+-- Up-to-date: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control
+-- Up-to-date: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg
+-- Up-to-date: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/uav_cmd__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/attitude_setpoint2__type_support.cpp
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/uav_cmd__type_support.cpp
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/uav_state__type_support.cpp
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/uav_state__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/include/drone_ros2_centralized_control/msg/detail/attitude_setpoint2__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/libdrone_ros2_centralized_control__rosidl_typesupport_introspection_cpp.so
+-- Set non-toolchain portion of runtime path of "/home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/libdrone_ros2_centralized_control__rosidl_typesupport_introspection_cpp.so" to ""
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/libdrone_ros2_centralized_control__rosidl_typesupport_cpp.so
+-- Set non-toolchain portion of runtime path of "/home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/libdrone_ros2_centralized_control__rosidl_typesupport_cpp.so" to ""
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/environment/pythonpath.sh
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/environment/pythonpath.dsv
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/python3.8/site-packages/drone_ros2_centralized_control/__init__.py
+Compiling '/home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/python3.8/site-packages/drone_ros2_centralized_control/__init__.py'...
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/python3.8/site-packages/drone_ros2_centralized_control/msg
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/python3.8/site-packages/drone_ros2_centralized_control/msg/_attitude_setpoint2_s.c
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/python3.8/site-packages/drone_ros2_centralized_control/msg/_attitude_setpoint2.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/python3.8/site-packages/drone_ros2_centralized_control/msg/__init__.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/python3.8/site-packages/drone_ros2_centralized_control/msg/_uav_cmd.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/python3.8/site-packages/drone_ros2_centralized_control/msg/_uav_state_s.c
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/python3.8/site-packages/drone_ros2_centralized_control/msg/_uav_state.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/python3.8/site-packages/drone_ros2_centralized_control/msg/_uav_cmd_s.c
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/python3.8/site-packages/drone_ros2_centralized_control/drone_ros2_centralized_control_s__rosidl_typesupport_fastrtps_c.cpython-38-x86_64-linux-gnu.so
+-- Set non-toolchain portion of runtime path of "/home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/python3.8/site-packages/drone_ros2_centralized_control/drone_ros2_centralized_control_s__rosidl_typesupport_fastrtps_c.cpython-38-x86_64-linux-gnu.so" to ""
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/python3.8/site-packages/drone_ros2_centralized_control/drone_ros2_centralized_control_s__rosidl_typesupport_introspection_c.cpython-38-x86_64-linux-gnu.so
+-- Set non-toolchain portion of runtime path of "/home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/python3.8/site-packages/drone_ros2_centralized_control/drone_ros2_centralized_control_s__rosidl_typesupport_introspection_c.cpython-38-x86_64-linux-gnu.so" to ""
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/python3.8/site-packages/drone_ros2_centralized_control/drone_ros2_centralized_control_s__rosidl_typesupport_c.cpython-38-x86_64-linux-gnu.so
+-- Set non-toolchain portion of runtime path of "/home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/python3.8/site-packages/drone_ros2_centralized_control/drone_ros2_centralized_control_s__rosidl_typesupport_c.cpython-38-x86_64-linux-gnu.so" to ""
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/libdrone_ros2_centralized_control__python.so
+-- Set non-toolchain portion of runtime path of "/home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/libdrone_ros2_centralized_control__python.so" to ""
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/msg/UavCmd.idl
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/msg/UavState.idl
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/msg/AttitudeSetpoint2.idl
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/msg/UavCmd.msg
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/msg/UavState.msg
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/msg/AttitudeSetpoint2.msg
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/multiple_uav_ctrl.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/multiple_uav_waypts.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/gazebo_px4_relay.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/mdp_20250506_single_agent_main.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/utils2/functions.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/utils2/PID.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/utils2/vis.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/model
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/model/robot_1.yaml
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/model/20250506_map_w_edges.yaml
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/model/robot_3.yaml
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/model/mapt.yaml
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/model/map.yaml
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/model/robot_2.yaml
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/launch
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/launch/mdp_20250506_single_agent.launch.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/launch/__pycache__
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/launch/__pycache__/mdp_20250506_single_agent.launch.cpython-38.pyc
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/launch/example_waypt_ctrl.launch.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/launch/example_trajectory_ctrl.launch.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/pickle_for_prism
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/pickle_for_prism/dra_to_prism.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/pickle_for_prism/mdp_to_prism.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/pickle_for_prism/prod_mdp_to_prism.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/__old
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/__old/MDP_TG
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/__old/MDP_TG/mdp.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/__old/MDP_TG/lp.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/__old/plan_and_save_w_visualization.old.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/__old/plan_and_save.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Example_Default
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Example_Default/plan_and_save_w_visualization.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Example_Default/plan_and_save.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Case_Studies
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Case_Studies/example_20250425_main.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Case_Studies/simple_example_20250401_main.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Case_Studies/old
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Case_Studies/old/example_1018_room_main.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Case_Studies/old/example_20250105_room_main_w_opacity.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Case_Studies/old/example_1018_room_main_w_opacity.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Case_Studies/old/example_1014_main.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Case_Studies/old/example_1014_main_w_opacity.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Case_Studies/example_20250426_team_mdp_main.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Case_Studies/example_20250506_main.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Case_Studies/example_20250506_single_agent_main.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/complex_case_study
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/complex_case_study/case_study_changeSize.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/complex_case_study/case_study_rex_changesize.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/complex_case_study/case_study_rex.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/complex_case_study/case_study3.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/complex_case_study/case_study.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/complex_case_study/case_study4.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/complex_case_study/case_study2.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/User
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/User/lp3.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/User/__old
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/User/__old/lp.20250403.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/User/__old/dra2.20250402.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/User/__old/team_lp3.20250606.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/User/__old/lp.20241012.old.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/User/__old/lp3.20250606.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/User/team_mdp_dra.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/User/dra2.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/User/team_lp3.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/User/utils.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/User/plot.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/User/grid_utils.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/User/team_dra3.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/User/vis2.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/User/dra3.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/User/lp.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/User/mdp3.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/pics
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Map
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Map/example_20250506_grid_2_waypt.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Map/example_20250506_team_mdp.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Map/example_20250506_grid_single_agent.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Map/vis_4_plan_and_save.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Map/example_20250425.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Map/old
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Map/old/example_room_1018.old.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Map/old/simple_example_20250401.old.simple_fesaible.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Map/old/simple_example_20250401.old.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Map/old/example_room_1018.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Map/old/example_room_20250105.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Map/old/example_8x5_1014.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Map/example_20250426_team_mdp.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Map/yaml
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/Map/simple_example_20250401.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/v_rep
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/v_rep/vrep.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/v_rep/load_model.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/v_rep/plan_synthesis.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/v_rep/plan_execution.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/v_rep/vrepConst.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/MDP_TG
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/MDP_TG/dra.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/MDP_TG/__init__.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/MDP_TG/figures
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/MDP_TG/old
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/MDP_TG/old/lp.20241018.old.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/MDP_TG/mdp.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/MDP_TG/vis.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/MDP_TG/lp.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/MDP_TG/promela.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/MDP_TG/ltl2dra.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/.vscode
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/test_example.py
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/.idea
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/lib/drone_ros2_centralized_control/MDP_Planner/.idea/inspectionProfiles
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/ament_index/resource_index/package_run_dependencies/drone_ros2_centralized_control
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/ament_index/resource_index/parent_prefix_path/drone_ros2_centralized_control
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/environment/ament_prefix_path.sh
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/environment/ament_prefix_path.dsv
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/environment/path.sh
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/environment/path.dsv
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/local_setup.bash
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/local_setup.sh
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/local_setup.zsh
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/local_setup.dsv
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/package.dsv
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/ament_index/resource_index/packages/drone_ros2_centralized_control
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/cmake/drone_ros2_centralized_control__rosidl_generator_cExport.cmake
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/cmake/drone_ros2_centralized_control__rosidl_generator_cExport-noconfig.cmake
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/cmake/drone_ros2_centralized_control__rosidl_typesupport_introspection_cExport.cmake
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/cmake/drone_ros2_centralized_control__rosidl_typesupport_introspection_cExport-noconfig.cmake
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/cmake/drone_ros2_centralized_control__rosidl_typesupport_cExport.cmake
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/cmake/drone_ros2_centralized_control__rosidl_typesupport_cExport-noconfig.cmake
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/cmake/drone_ros2_centralized_control__rosidl_generator_cppExport.cmake
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/cmake/drone_ros2_centralized_control__rosidl_typesupport_introspection_cppExport.cmake
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/cmake/drone_ros2_centralized_control__rosidl_typesupport_introspection_cppExport-noconfig.cmake
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/cmake/drone_ros2_centralized_control__rosidl_typesupport_cppExport.cmake
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/cmake/drone_ros2_centralized_control__rosidl_typesupport_cppExport-noconfig.cmake
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/cmake/rosidl_cmake-extras.cmake
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/cmake/ament_cmake_export_dependencies-extras.cmake
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/cmake/ament_cmake_export_libraries-extras.cmake
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/cmake/ament_cmake_export_targets-extras.cmake
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/cmake/ament_cmake_export_include_directories-extras.cmake
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/cmake/rosidl_cmake_export_typesupport_targets-extras.cmake
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/cmake/drone_ros2_centralized_controlConfig.cmake
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/cmake/drone_ros2_centralized_controlConfig-version.cmake
+-- Installing: /home/ywzheng/px4_ros_ws/src/drone_ros2_centralized_control/install/drone_ros2_centralized_control/share/drone_ros2_centralized_control/package.xml
