@@ -13,7 +13,7 @@ def generate_launch_description():
 
     declare_drone_num = DeclareLaunchArgument(
         'drone_num',
-        default_value='3',
+        default_value='1',
         description='Number of drones to control (up to 10)'
     )
 
@@ -30,7 +30,7 @@ def generate_launch_description():
         nodes.append(
             Node(
                 package='drone_ros2_centralized_control',
-                executable='mdp_20250506_single_agent_main.py',
+                executable='mdp_20250506_single_agent_w_syn_traj_main.py',
                 name=f'mdp_run_uav_{i}',
                 output='screen',
                 parameters=[{'drone_id': i,

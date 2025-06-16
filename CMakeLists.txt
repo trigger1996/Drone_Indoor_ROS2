@@ -57,6 +57,8 @@ install(PROGRAMS
   src/gazebo_sim/gazebo_px4_relay.py
   #
   src/user/mdp/mdp_20250506_single_agent_main.py
+  src/user/mdp/mdp_20250506_single_agent_w_syn_traj_main.py
+  src/user/mdp/mdp_20250506_multi_agent_w_syn_traj_main.py
   #
   DESTINATION lib/${PROJECT_NAME}
 )
@@ -65,6 +67,7 @@ install(PROGRAMS
   src/utils2/functions.py
   src/utils2/PID.py
   src/utils2/vis.py
+  src/utils2/waypts.py
   DESTINATION lib/${PROJECT_NAME}/utils2
 )
 

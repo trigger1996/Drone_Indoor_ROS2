@@ -315,8 +315,9 @@ class Case_20250506_single_agent:
         # draw_mdp_principle()
 
         #
-        #
-        plt.show()
+        # to illustrate the graphs
+        # however, it will stop the moving process
+        #plt.show()
 
 #
 # --------------------------------------------------------------------------------------------------

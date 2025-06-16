@@ -1,5 +1,11 @@
 # Drone_Indoor_ROS2
 
+### to update submodules
+git submodule update --remote --merge
+git add .
+git commit -m "updated"
+git push origin master
+
 ### to install
 git clone https://github.com/trigger1996/Drone_Indoor_ROS2 ~/px4_ros_ws/src/drone_ros_centerlized_control
 cd drone_ros_centerlized_control
