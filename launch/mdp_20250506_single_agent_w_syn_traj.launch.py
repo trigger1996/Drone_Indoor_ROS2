@@ -56,14 +56,14 @@ def generate_launch_description():
         )
     )
 
-    nodes.append(
-        Node(
-            package='drone_ros2_centralized_control',
-            executable='gazebo_controller.py',
-            name='gazebo_controller',
-            output='screen',
-            parameters=[{'map_file': file_path}],
-        )
-    )
+    # nodes.append(
+    #     Node(
+    #         package='drone_ros2_centralized_control',
+    #         executable='gazebo_controller.py',
+    #         name='gazebo_controller',
+    #         output='screen',
+    #         parameters=[{'map_file': file_path}],
+    #     )
+    # )
 
     return LaunchDescription([declare_drone_num] + nodes)
