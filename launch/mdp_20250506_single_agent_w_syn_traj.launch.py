@@ -52,7 +52,17 @@ def generate_launch_description():
             executable='gazebo_px4_relay.py',
             name='gazebo_px4_relay',
             output='screen',
-            parameters=[{'uav_ids': [1, 2, 3]}]  # 可根据 drone_num 设置动态生成
+            parameters=[{'uav_ids': [1]}]  # 可根据 drone_num 设置动态生成
+        )
+    )
+
+    nodes.append(
+        Node(
+            package='drone_ros2_centralized_control',
+            executable='gazebo_controller.py',
+            name='gazebo_controller',
+            output='screen',
+            parameters=[{'map_file': file_path}],
         )
     )
 

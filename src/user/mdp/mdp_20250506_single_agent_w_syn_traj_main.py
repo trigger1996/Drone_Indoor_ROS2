@@ -86,15 +86,19 @@ class MultiDroneController(Node):
         self.create_subscription(UavState, f"/mavrouter/drone_state_{drone_id}", self.uav_state_callback, qos)
 
         # 加载航点
+        # TODO 地图要放大
         map_file = self.get_parameter('map_file').value
 
-        # TODO
+        # 
         # 读取的transition cost不对
         self.get_logger().info(format_logger(f"[UAV{drone_id}] Loading waypoints from {map_file}", color='green'))
         # with open(map_file, 'r') as f:
         #     self.waypoints = yaml.safe_load(f)['waypoint']
         self.waypoints = load_waypoints_from_yaml(map_file)
 
+        #
+        # TODO
+        # MODIFY HERE
         x_u_list = """'15' '('u',)' '10' '('u',)' '5' '('r',)' '6' '('d',)' '11' '('r',)' '12' '('l',)' '11' '('r',)' '12' '('l',)' '11' '('d',)' '16' '('u',)' '11' '('r',)' '12' '('l',)' '11' '('u',)' '6' '('r',)' '7' '('r',)' '8' '('u',)' '3' '('d',)' '8' '('l',)' '7' '('d',)' '12' '('d',)' '17' '('l',)' '16' '('r',)' '17' '('l',)' '16' '('u',)' '11' '('d',)' '16' '('l',)' '15' '('d',)' '20' '('u',)' '15' '('d',)' '20' '('u',)' '15' '('r',)' '16' '('r',)' '17' '('l',)' '16' '('d',)' '21' '('l',)' '20' '('u',)' '15' '('d',)' '20' '('r',)' '16' '('u',)' '11' '('r',)' '12' '('l',)' '11' '('u',)' '6' '('u',)' '1' '('d',)' '6' '('l',)' '5' '('u',)' '0' '('r',)' '1' '('d',)' '6' '('l',)' '5' '('d',)' '10' '('r',)' '11' '('d',)' '16' '('l',)' '15' '('u',)' '10' '('d',)' '15' '('d',)' '20' '('r',)' '21' '('u',)' '16' '('d',)' '21' '('r',)' '17' '('l',)' '16' '('r',)' '17' '('u',)' '12' '('u',)' '7' '('u',)' '2' '('l',)' '1' '('r',)' '2' '('l',)' '1' '('l',)' '0' '('r',)' '1' '('d',)' '6' '('r',)' '7' '('l',)' '6' '('u',)' '1' '('d',)' '6' '('r',)' '7' '('r',)' '8' '('d',)' '13' '('u',)' '8' '('l',)' '7' '('d',)' '12' '('r',)' '13' '('r',)' '14' '('l',)' '13' '('u',)' '8' '('u',)' '3' '('l',)' '2' '('l',)' '1' '('l',)' '0' '('d',)' '5' '('d',)' '10' '('d',)' '15' '('d',)' '20' '('r',)' '21' '('r',)' '17' '('r',)' '18' '('u',)' '13' '('r',)' '14' '('l',)' '13' '('d',)' '18' '('u',)' '13' '('u',)' '8' '('u',)' '3' '('d',)' '8' '('d',)' '13' '('l',)' '12' '('u',)' '7' '('u',)' '2' '('d',)' '7' '('r',)' '8' '('l',)' '7' '('d',)' '12' '('d',)' '17' '('l',)' '16' '('l',)' '15' '('d',)' '20' '('r',)' '21' '('u',)' '16' '('u',)' '11' '('u',)' '6' '('r',)' '7' '('r',)' '8' '('l',)' '7' '('r',)' '8' '('l',)' '7' '('r',)' '8' '('u',)' '3' '('d',)' '8' '('l',)' '7' '('r',)' '8' '('l',)' '7' '('r',)' '8' '('u',)' '3' '('l',)' '2' '('d',)' '7' '('d',)' '12' '('u',)' '7' '('r',)' '8' '('l',)' '7' '('r',)' '8' '('l',)' '7' '('r',)' '8' '('d',)' '13' '('u',)' '8' '('d',)' '13' '('d',)' '18' '('r',)' '19' '('u',)' '14' '('l',)' '13' '('r',)' '14'"""
         x_list = extract_states_from_x_u_lists(x_u_list)
         # x_list = list(map(int, x_list))
@@ -108,8 +112,8 @@ class MultiDroneController(Node):
                     self.sorted_waypoints.append((key_str, wp['pos']))
                     break
         
-        formatted_table = format_waypoint_table_4_single_agent(self.sorted_waypoints)
-        self.get_logger().info("\n" + formatted_table)
+        # formatted_table = format_waypoint_table_4_single_agent(self.sorted_waypoints)
+        # self.get_logger().info("\n" + formatted_table)
 
         # 
         # calculate transition
@@ -217,7 +221,7 @@ class MultiDroneController(Node):
 
             key = keys[self.current_waypoint_index]
             target = self.sorted_waypoints[key]
-            duration = 10                           # TODO
+            duration = 10                           # TODO, 针对这个要做调整, 同时地图要放大
 
             px = self.uav_pose.pose.pose.position.x
             py = self.uav_pose.pose.pose.position.y

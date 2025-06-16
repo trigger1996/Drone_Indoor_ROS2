@@ -57,44 +57,55 @@ def print_c(text, color=None, bg_color=None, bold=False, underline=False):
 
 def format_logger(text, color=None, bg_color=None, styles=None):
     """
-    支持彩色和多样式的终端格式化输出。
-    
+    支持彩色和多样式的终端格式化输出，用于 self.get_logger().info(...) 或 print。
+
     参数:
-    - text: 显示的文字
-    - color: 前景色名称，如 'red'
-    - bg_color: 背景色名称，如 'bg_blue'
-    - styles: 样式列表，如 ['bold', 'underline']
+    - text (str): 显示的文字
+    - color (str): 前景色名称，如 'red', 'bright_green'，默认None表示默认色
+    - bg_color (str): 背景色名称，如 'bg_blue'，默认None表示无背景色
+    - styles (str or list): 样式字符串或列表，如 'bold' 或 ['bold', 'underline']
+
+    返回:
+    - str: 带有 ANSI 转义序列的格式化字符串
     """
-    color_codes = {
-        'black': '30', 'red': '31', 'green': '32', 'yellow': '33',
-        'blue': '34', 'magenta': '35', 'cyan': '36', 'white': '37'
+
+    # ANSI颜色代码
+    fg_colors = {
+        "black": 30, "red": 31, "green": 32, "yellow": 33,
+        "blue": 34, "magenta": 35, "cyan": 36, "white": 37,
+        "bright_black": 90, "bright_red": 91, "bright_green": 92,
+        "bright_yellow": 93, "bright_blue": 94, "bright_magenta": 95,
+        "bright_cyan": 96, "bright_white": 97,
     }
 
-    bg_color_codes = {
-        'bg_black': '40', 'bg_red': '41', 'bg_green': '42', 'bg_yellow': '43',
-        'bg_blue': '44', 'bg_magenta': '45', 'bg_cyan': '46', 'bg_white': '47'
+    bg_colors = {
+        "bg_black": 40, "bg_red": 41, "bg_green": 42, "bg_yellow": 43,
+        "bg_blue": 44, "bg_magenta": 45, "bg_cyan": 46, "bg_white": 47,
+        "bg_bright_black": 100, "bg_bright_red": 101, "bg_bright_green": 102,
+        "bg_bright_yellow": 103, "bg_bright_blue": 104, "bg_bright_magenta": 105,
+        "bg_bright_cyan": 106, "bg_bright_white": 107,
     }
 
     style_codes = {
-        'bold': '1',  'dim': '2',     'italic' : '3', 'underline': '4',
-        'blink': '5', 'reverse': '7', 'hidden' : '8', 'strikethrough': '9'
+        "bold": 1, "dim": 2, "italic": 3, "underline": 4,
+        "blink": 5, "reverse": 7, "hidden": 8, "strikethrough": 9,
     }
-
 
     codes = []
 
-    if color in color_codes:
-        codes.append(color_codes[color])
-    if bg_color in bg_color_codes:
-        codes.append(bg_color_codes[bg_color])
-    if styles:
-        for style in styles:
-            if style in style_codes:
-                codes.append(style_codes[style])
+    if color and color.lower() in fg_colors:
+        codes.append(str(fg_colors[color.lower()]))
 
-    if codes:
-        prefix = f"\033[{';'.join(codes)}m"
-        suffix = "\033[0m"
-        return f"{prefix}{text}{suffix}"
-    else:
-        return text
+    if bg_color and bg_color.lower() in bg_colors:
+        codes.append(str(bg_colors[bg_color.lower()]))
+
+    if styles:
+        if isinstance(styles, str):
+            styles = [styles]
+        for style in styles:
+            if style.lower() in style_codes:
+                codes.append(str(style_codes[style.lower()]))
+
+    prefix = f"\033[{';'.join(codes)}m" if codes else ""
+    suffix = "\033[0m" if codes else ""
+    return f"{prefix}{text}{suffix}"

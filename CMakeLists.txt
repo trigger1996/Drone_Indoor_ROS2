@@ -55,6 +55,7 @@ install(PROGRAMS
   src/example/multiple_uav_ctrl.py
   src/example/multiple_uav_waypts.py
   src/gazebo_sim/gazebo_px4_relay.py
+  src/gazebo_sim/gazebo_controller.py
   #
   src/user/mdp/mdp_20250506_single_agent_main.py
   src/user/mdp/mdp_20250506_single_agent_w_syn_traj_main.py
