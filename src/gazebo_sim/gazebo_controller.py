@@ -31,8 +31,8 @@ class GazeboController(Node):
         map_file = self.get_parameter('map_file').value
         
         # 1. 重置世界
-        self.get_logger().info(format_logger(f"RESETING world ...", color="red", styles="bold"))
-        self.reset_world()                     # Added, commented
+        #self.get_logger().info(format_logger(f"RESETING world ...", color="red", styles="bold"))
+        #self.reset_world()                     # Added, commented
         
         # 2. 从参数生成目标点和障碍物
         self.get_logger().info(format_logger(f"SPAWNING target / obstacle locations ...", color="red", styles="bold"))

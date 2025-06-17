@@ -67,11 +67,19 @@ class MultiDroneController(Node):
             depth=1
         )
 
+        #
+        # Parameters
+        self.cost_multipliers            = 4. 
+        self.waypt_radius                = 0.25
+        self.target_altitude             = 0.8
+        self.current_waypoint_index      = 0
+        self.is_wait_until_time_exceeded = True
+        #
         # PID 控制器
         self.pid_x = PID_Position(0, 1.0, 0., 0.0, ctrl_dt, -UAV_MAX_SPEED_X, UAV_MAX_SPEED_X)
         self.pid_y = PID_Position(0, 1.0, 0., 0.0, ctrl_dt, -UAV_MAX_SPEED_Y, UAV_MAX_SPEED_Y)
         self.pid_z = PID_Position(0, 1.0, 0., 0.0, ctrl_dt, -UAV_MAX_SPEED_Z, UAV_MAX_SPEED_Z)
-
+        #
         # UAV 状态变量
         self.uav_pose = Odometry()
         self.uav_state = UavState()
@@ -126,7 +134,7 @@ class MultiDroneController(Node):
             dx = pos_curr[0] - pos_last[0]
             dy = pos_curr[1] - pos_last[1]
             dz = pos_curr[2] - pos_last[2]            
-            cost_t = math.sqrt(dx**2 + dy**2 + dz**2)
+            cost_t = math.sqrt(dx**2 + dy**2 + dz**2) * self.cost_multipliers
             acc_cost_t = self.accumulated_time_list[self.accumulated_time_list.__len__() - 1] + cost_t
             self.transition_cost_list.append(cost_t)
             self.accumulated_time_list.append(acc_cost_t)
@@ -137,14 +145,17 @@ class MultiDroneController(Node):
         # 控制流程变量
         self.create_timer(ctrl_dt, self.control_loop)
         self.start_time = self.get_clock().now().seconds_nanoseconds()[0]
-        self.ctrl_cntr = 0
-        self.takeoff_duration = 10.0
-        self.task_duration = 60.0
-        self.target_altitude = 0.8
-        self.current_waypoint_index = 0
+        self.ctrl_cntr             = 0
+        self.takeoff_duration      = 10.0
+        self.task_start_instant    = self.takeoff_duration
+        self.task_finished_instant = self.takeoff_duration
+        self.task_duration = self.accumulated_time_list[self.accumulated_time_list.__len__() - 1]
+        #
         self.task_start_time = None
-        self.task_flag = False
-        self.finished_flag = False
+        self.task_flag       = False
+        self.ready_flag      = False
+        self.landing_flag    = False
+        self.finished_flag   = False
 
         # 自动解锁
         self.get_logger().info(format_logger(f"[UAV{drone_id}] Arming UAV...", color='green', styles='bold'))
@@ -204,24 +215,43 @@ class MultiDroneController(Node):
             if int(self.ctrl_cntr) % 10 == 0:
                 self.get_logger().info(format_logger(f"[UAV{self.drone_id}] Taking off...", color='cyan'))
 
-        elif now < self.takeoff_duration + self.task_duration:
+        # === 起飞后导航至初始路点（等待就位阶段） ===
+        elif not self.ready_flag:
+            # 飞到第一个路点
+            key, target = self.sorted_waypoints[0]
+            px = self.uav_pose.pose.pose.position.x
+            py = self.uav_pose.pose.pose.position.y
+            pz = self.uav_pose.pose.pose.position.z
+            vx, vy, vz = self.calculate_velocity(px, py, pz, target[0], target[1], -self.target_altitude)
+            self.publish_velocity(vx, vy, vz)
+
+            err_x = target[0] - px
+            err_y = target[1] - py
+            dist = math.sqrt(err_x**2 + err_y**2)
+
+            if dist < self.waypt_radius:
+                self.ready_flag = True
+                self.task_start_instant = now
+                self.get_logger().info(format_logger(f"[UAV{self.drone_id}] Reached initial waypoint {key}", color='green', styles='bold'))
+
+            else:
+                if int(self.ctrl_cntr) % 10 == 0:
+                    self.get_logger().info(format_logger(f"[UAV{self.drone_id}] Moving to start point {key}", color='blue'))
+
+        elif not self.landing_flag and now < self.task_start_instant + self.task_duration:
             # 飞行任务
             if not self.task_flag:
                 self.task_flag = True
                 self.task_start_time = now
-                self.waypt_start_time = now
                 self.get_logger().info(format_logger(f"[UAV{self.drone_id}] Mission started...", color='cyan'))
 
-            keys = list(self.sorted_waypoints.keys())
-            if self.current_waypoint_index >= len(keys):
+            key, target = self.sorted_waypoints[self.current_waypoint_index]
+            limited_time = self.accumulated_time_list[self.current_waypoint_index]
+            #
+            if self.current_waypoint_index >= len(self.sorted_waypoints) - 1:
                 self.get_logger().info(f"[UAV{self.drone_id}] All waypoints reached.")
-                return
-
-            elapsed_time = now - self.waypt_start_time
-
-            key = keys[self.current_waypoint_index]
-            target = self.sorted_waypoints[key]
-            duration = 10                           # TODO, 针对这个要做调整, 同时地图要放大
+                self.landing_flag = True
+                self.task_finished_instant = now
 
             px = self.uav_pose.pose.pose.position.x
             py = self.uav_pose.pose.pose.position.y
@@ -234,21 +264,34 @@ class MultiDroneController(Node):
             err_y = target[1] - py
             err_z = self.target_altitude - pz
             dist = math.sqrt(err_x**2 + err_y**2)
-            if dist < 0.25 or elapsed_time > duration:
+            #
+            # Decision
+            should_switch_waypoint = False
+
+            if self.is_wait_until_time_exceeded:
+                # 要等到时间到了再换点
+                if dist < self.waypt_radius and now > limited_time + self.task_start_instant:
+                    should_switch_waypoint = True
+            else:
+                # 提前到达或时间到了都可以换点
+                if dist < self.waypt_radius or now > limited_time + self.task_start_instant:
+                    should_switch_waypoint = True
+            #
+            #
+            if should_switch_waypoint:
                 #
-                if dist < 0.25:
-                    self.get_logger().info(format_logger(f"[UAV{self.drone_id}] Reached waypoint {key}", color='green',  styles='bold'))
+                if dist < self.waypt_radius:
+                    self.get_logger().info(format_logger(f"[UAV{self.drone_id}] Reached waypoint {key} ({self.current_waypoint_index} / {len(self.sorted_waypoints) - 1}) | t: {now:.2f} / {limited_time + self.task_start_instant:.2f}", color='green',  styles='bold'))
                 else:
-                    self.get_logger().info(format_logger(f"[UAV{self.drone_id}] NOT Reach waypoint {key}, time exceeded", color='yellow', styles='bold'))
+                    self.get_logger().info(format_logger(f"[UAV{self.drone_id}] NOT Reach waypoint {key} ({self.current_waypoint_index} / {len(self.sorted_waypoints) - 1}) | t: {now:.2f} / {limited_time + self.task_start_instant:.2f}, time exceeded", color='yellow', styles='bold'))
                 #
-                if self.current_waypoint_index < len(keys) - 1:
+                if self.current_waypoint_index < len(self.sorted_waypoints) - 1:
                     self.current_waypoint_index += 1
-                self.waypt_start_time = now  # 重置航点计时
 
             if int(self.ctrl_cntr) % 20 == 0:
                 self.get_logger().info(format_logger(f"[UAV{self.drone_id}] Tgt id:x/y/z: {key}: {target[0]} / {target[1]} / {self.target_altitude} | Fbk x/y/z: {px} / {py} / {pz} | Vel x/y/z: {vx} / {vy} / {vz}", color='blue', styles='italic'))
 
-        elif now < self.task_duration + 5.0:
+        elif now < self.task_finished_instant + 15.0:
             # 降落
             err_z = 0.0 - self.uav_pose.pose.pose.position.z
             vx, vy, vz = 0.0, 0.0, saturation(self.pid_z.get_new_ctrl(err_z), UAV_MAX_SPEED_Z, -UAV_MAX_SPEED_Z)
