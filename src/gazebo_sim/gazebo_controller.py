@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import rclpy
+import time
 from rclpy.node import Node
 from gazebo_msgs.srv import SpawnEntity     #, ResetWorld
 from std_srvs.srv import Empty              # ResetSimulation 实际上是 Empty 类型
@@ -80,6 +81,8 @@ class GazeboController(Node):
                 color='0 1 0 0.65'  # 绿色
             )
 
+            time.sleep(0.025)
+
         # 生成障碍物（红色圆柱体）
         for i in range(0, len(obstacles), 5):
             x = obstacles[i]
@@ -94,7 +97,9 @@ class GazeboController(Node):
                 color='1 0 0 0.65'  # 红色
             )
 
-    def spawn_waypoints_from_yaml(self, yaml_path: str, radius=0.1):
+            time.sleep(0.025)
+
+    def spawn_waypoints_from_yaml(self, yaml_path: str, radius=0.5):
         """从yaml加载路点并可视化为Gazebo中的圆柱体"""
         self.get_logger().info(format_logger(f"LOADING waypoints from: {yaml_path}", color="blue"))
 
@@ -110,19 +115,23 @@ class GazeboController(Node):
             pos = wp["pos"]  # [x, y, z, yaw]
             wp_id = wp["id"]
 
-            x, y, z = pos[0], pos[1], pos[2]
+            x, y, z = pos[0], pos[1], 0.125        # x, y, z = pos[0], pos[1], pos[2]
             name = f"waypoint_{wp_id}"
-            self.get_logger().info(format_color_log(f"Spawning {name} at ({x:.2f}, {y:.2f}, {z:.2f})", color="cyan"))
+            self.get_logger().info(format_logger(f"Spawning {name} at ({x:.2f}, {y:.2f}, {z:.2f})", color="cyan"))
 
             self.spawn_cylinder(
                 client=spawn_client,
                 name=name,
                 x=x, y=y, z=z,
                 radius=radius,
-                color="0 0 1 0.8"  # 蓝色表示 waypoints
+                color="0.607 0.972 0.047 0.9",  # 蓝色表示 waypoints
+                height=0.1
             )
 
-    def spawn_cylinder(self, client, name, x, y, z, radius, color):
+            time.sleep(0.025)
+
+
+    def spawn_cylinder(self, client, name, x, y, z, radius, color, height=0.5):
         """生成单个圆柱体"""
         cylinder_sdf = f"""
         <?xml version="1.0"?>
@@ -135,7 +144,7 @@ class GazeboController(Node):
                 <geometry>
                   <cylinder>
                     <radius>{radius}</radius>
-                    <length>0.5</length>
+                    <length>{height}</length>
                   </cylinder>
                 </geometry>
                 <material>

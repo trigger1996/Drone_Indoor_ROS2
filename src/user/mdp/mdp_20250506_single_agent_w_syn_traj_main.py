@@ -69,7 +69,7 @@ class MultiDroneController(Node):
 
         #
         # Parameters
-        self.cost_multipliers            = 4. 
+        self.cost_multipliers            = 2. 
         self.waypt_radius                = 0.25
         self.target_altitude             = 0.8
         self.current_waypoint_index      = 0
