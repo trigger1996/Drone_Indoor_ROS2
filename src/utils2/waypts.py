@@ -3,8 +3,9 @@
 import yaml
 import os
 import re
+import ast
 from collections import OrderedDict
-from utils2.vis import print_c
+from utils2.vis import print_c, format_logger
 
 def load_waypoints_from_yaml(yaml_path, is_visualize=True):
     # 获取绝对路径
@@ -52,6 +53,36 @@ def extract_states_from_x_u_lists(x_u_list):
     x_list = re.findall(r"'(\d+)'", x_u_list)
 
     return x_list
+
+
+def extract_states_for_all_robots(x_u_list_all):
+    """
+    提取所有机器人的状态序列。
+
+    参数：
+        x_u_list_all (str): 包含状态-动作对的字符串。
+
+    返回：
+        List[List[int]]: 每个机器人一条状态路径。
+    """
+    # 匹配状态元组：'('数字','数字')'
+    state_pattern = re.compile(r"\('(\d+)',\s*'(\d+)'\)")
+
+    # 提取所有状态对
+    state_pairs = state_pattern.findall(x_u_list_all)
+
+    if not state_pairs:
+        raise ValueError("未找到任何状态对，检查输入格式是否正确")
+
+    # 转换为 int，并按照机器人编号分组
+    num_robots = len(state_pairs[0])
+    robot_states = [[] for _ in range(num_robots)]
+
+    for pair in state_pairs:
+        for i in range(num_robots):
+            robot_states[i].append(int(pair[i]))
+
+    return robot_states
 
 def print_waypoint_table_4_single_agent(x_list, waypoints_dict):
     """
@@ -191,6 +222,10 @@ def format_waypoints_table_with_costs_4_single_agent(sorted_waypoints, transitio
             f"{color_text(accum_t, 'green'):>10}"
         )
         lines.append(line)
+
+    if len(sorted_waypoints) > 10:
+        result = format_logger(f"... (total {len(sorted_waypoints)} waypoints)", color='bright_green', styles='bold')
+        lines.append(result)
 
     return '\n'.join(lines)
 
