@@ -3,88 +3,165 @@
 
 import os
 import math
-import time
 import yaml
+import time
 from collections import OrderedDict
 
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy, DurabilityPolicy
 
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
-from drone_ros_centeralized_control.msg import UavCmd, UavState
+from drone_ros2_centralized_control.msg import UavCmd, UavState  # 自定义消息类型
 from transforms3d.euler import quat2euler
 
-from utils.vis import print_c
-from utils.PID import PID_Position
-from utils.functions import saturation, dead_zone
+from utils2.vis import print_c, format_logger
+from utils2.PID import PID_Position
+from utils2.functions import saturation, dead_zone
+from utils2.waypts import load_waypoints_from_yaml, extract_states_from_x_u_lists, format_waypoint_table_4_single_agent, format_waypoints_table_with_costs_4_single_agent
 
-UAV_SPEED_X_DEAD_ZONE = 1
-UAV_MAX_SPEED_X = 2
-UAV_MAX_SPEED_Y = 2
-UAV_MAX_SPEED_Z = 2
+import time
+import matplotlib
+import matplotlib.pyplot as plt
+matplotlib.use("TkAgg")
+
+from functools import cmp_to_key
+from subprocess import check_output
+from MDP_Planner.Map.example_20250506_grid_single_agent import construct_single_agent_mdp, observation_func_0506, control_observable_dict
+from MDP_Planner.Map.example_20250506_team_mdp import run_2_observations_seqs, observation_seq_2_inference, calculate_cost_from_runs    # TODO
+from MDP_Planner.MDP_TG.mdp import Motion_MDP
+from MDP_Planner.MDP_TG.dra import Dra
+from MDP_Planner.MDP_TG.lp  import syn_full_plan_rex
+from MDP_Planner.User.dra3 import product_mdp3
+from MDP_Planner.User.lp3  import synthesize_full_plan_w_opacity3
+from MDP_Planner.User.grid_utils import sort_team_numerical_states
+from MDP_Planner.User.vis2 import print_c, print_colored_sequence, print_highlighted_sequences
+from MDP_Planner.User.plot import plot_cost_hist, plot_cost_hists_multi
 
 
-class UAVController(Node):
+UAV_SPEED_X_DEAD_ZONE = 0.0
+UAV_MAX_SPEED_X = 1.0
+UAV_MAX_SPEED_Y = 1.0
+UAV_MAX_SPEED_Z = 2.0
+
+#
+# --------------------------------------------------------------------------------------------------
+class MultiDroneController(Node):
+
     def __init__(self):
         super().__init__('multi_drone_control')
 
-        self.drone_id = 2
+        self.declare_parameter('drone_id', 1)
+        self.declare_parameter('map_file', '')
+        ctrl_dt = 0.1
+
+        drone_id = self.get_parameter('drone_id').get_parameter_value().integer_value
+        self.drone_id = drone_id
+
+        ns = f"/px4_{self.drone_id}"
+        qos = QoSProfile(
+            reliability=ReliabilityPolicy.BEST_EFFORT,
+            durability=DurabilityPolicy.TRANSIENT_LOCAL,
+            history=HistoryPolicy.KEEP_LAST,
+            depth=1
+        )
+
+        #
+        # Parameters
+        self.cost_multipliers            = 2. 
+        self.waypt_radius                = 0.25
+        self.target_altitude             = 0.8
+        self.current_waypoint_index      = 0
+        self.is_wait_until_time_exceeded = True
+        #
+        # PID 控制器
+        self.pid_x = PID_Position(0, 1.0, 0., 0.0, ctrl_dt, -UAV_MAX_SPEED_X, UAV_MAX_SPEED_X)
+        self.pid_y = PID_Position(0, 1.0, 0., 0.0, ctrl_dt, -UAV_MAX_SPEED_Y, UAV_MAX_SPEED_Y)
+        self.pid_z = PID_Position(0, 1.0, 0., 0.0, ctrl_dt, -UAV_MAX_SPEED_Z, UAV_MAX_SPEED_Z)
+        #
+        # UAV 状态变量
         self.uav_pose = Odometry()
-        self.is_uav_pose_updated = False
         self.uav_state = UavState()
+        self.is_uav_pose_updated = False
         self.is_uav_state_updated = False
 
-        self.pid_x = PID_Position(0, 1.0, 0.1, 0.05, -0.3, 0.3)
-        self.pid_y = PID_Position(0, 1.0, 0.1, 0.05, -0.3, 0.3)
-        self.pid_z = PID_Position(0, 1.0, 0.1, 0.05, -0.3, 0.3)
+        # 订阅与发布
+        self.arm_disarm_pub = self.create_publisher(UavCmd, f"/cmd_arm_disarm_{drone_id}", qos)
+        self.cmd_vel_pub = self.create_publisher(Twist, f"/cmd_vel_{drone_id}", qos)
 
-        uav_cmd_topic = f"/cmd_arm_disarm_{self.drone_id}"
-        cmd_vel_topic = f"/cmd_vel_{self.drone_id}"
-        pose_topic = f"/mavrouter/drone_pose_{self.drone_id}"
-        state_topic = f"/mavrouter/drone_state_{self.drone_id}"
+        self.create_subscription(Odometry, f"/mavrouter/drone_pose_{drone_id}", self.uav_odom_callback, qos)
+        self.create_subscription(UavState, f"/mavrouter/drone_state_{drone_id}", self.uav_state_callback, qos)
 
-        self.arm_disarm_pub = self.create_publisher(UavCmd, uav_cmd_topic, 1)
-        self.cmd_vel_pub = self.create_publisher(Twist, cmd_vel_topic, 1)
-        self.create_subscription(Odometry, pose_topic, self.uav_odom_callback, 1)
-        self.create_subscription(UavState, state_topic, self.uav_state_callback, 1)
+        # 加载航点
+        # TODO 地图要放大
+        map_file = self.get_parameter('map_file').value
 
-        self.load_waypoints()
+        # 
+        # 读取的transition cost不对
+        self.get_logger().info(format_logger(f"[UAV{drone_id}] Loading waypoints from {map_file}", color='green'))
+        # with open(map_file, 'r') as f:
+        #     self.waypoints = yaml.safe_load(f)['waypoint']
+        self.waypoints = load_waypoints_from_yaml(map_file)
 
-        self.create_timer(0.1, self.control_loop)
-        self.waypoint_iter = iter(self.sorted_waypoints.items())
-        self.current_target = None
-        self.takeoff_duration = 2.0
-        self.task_duration = 60.0
-        self.start_time = time.time()
+        #
+        # TODO
+        # MODIFY HERE
+        x_u_list_all = """'('0', '15')' '(('d',), ('u',))' '('5', '10')' '(('u',), ('d',))' '('0', '15')' '(('r',), ('u',))' '('1', '10')' '(('r',), ('d',))' '('2', '15')' '(('l',), ('u',))' '('1', '10')' '(('r',), ('r',))' '('2', '11')' '(('d',), ('u',))' '('7', '6')' '(('d',), ('r',))' '('12', '7')' '(('r',), ('d',))' '('13', '12')' '(('l',), ('u',))' '('12', '7')' '(('d',), ('l',))' '('17', '6')' '(('u',), ('l',))' '('12', '5')' '(('r',), ('u',))' '('13', '0')' '(('l',), ('d',))' '('12', '5')' '(('r',), ('r',))' '('13', '6')' '(('u',), ('r',))' '('8', '7')' '(('l',), ('r',))' '('7', '8')' '(('l',), ('d',))' '('6', '13')' '(('u',), ('d',))' '('1', '18')' '(('r',), ('r',))' '('2', '19')' '(('l',), ('l',))' '('1', '18')' '(('r',), ('r',))' '('7', '19')' '(('l',), ('u',))' '('6', '14')' '(('d',), ('d',))' '('11', '19')' '(('l',), ('u',))' '('10', '14')' '(('u',), ('d',))' '('5', '19')' '(('d',), ('d',))' '('10', '24')' '(('u',), ('l',))' '('5', '18')' '(('r',), ('l',))' '('11', '17')' '(('l',), ('l',))' '('10', '16')' '(('r',), ('r',))' '('11', '17')' '(('r',), ('l',))' '('12', '16')' '(('r',), ('l',))' '('13', '15')' '(('d',), ('d',))' '('18', '20')' '(('r',), ('r',))' '('19', '21')' '(('u',), ('u',))' '('14', '16')' '(('d',), ('r',))' '('19', '17')' '(('l',), ('l',))' '('18', '16')' '(('l',), ('d',))' '('17', '21')' '(('l',), ('r',))' '('16', '17')' '(('d',), ('u',))' '('21', '12')' '(('r',), ('u',))' '('17', '7')' '(('u',), ('l',))' '('12', '6')' '(('u',), ('d',))' '('7', '11')' '(('u',), ('r',))' '('2', '12')' '(('l',), ('u',))' '('1', '7')' '(('l',), ('r',))' '('0', '8')' '(('r',), ('u',))' '('1', '3')' '(('r',), ('l',))' '('2', '2')' '(('d',), ('d',))' '('7', '7')' '(('d',), ('d',))' '('12', '12')' '(('r',), ('u',))' '('13', '7')' '(('r',), ('r',))' '('14', '8')' '(('d',), ('u',))' '('19', '3')' '(('u',), ('l',))' '('14', '2')' '(('d',), ('d',))' '('19', '7')' '(('u',), ('d',))' '('14', '12')' '(('d',), ('d',))' '('19', '17')' '(('d',), ('r',))' '('24', '18')' '(('u',), ('u',))' '('19', '13')' '(('u',), ('r',))' '('14', '14')' '(('d',), ('d',))' '('19', '19')' '(('u',), ('d',))' '('14', '24')' '(('l',), ('l',))' '('13', '18')' '(('l',), ('l',))' '('12', '17')' '(('l',), ('r',))' '('11', '18')' '(('l',), ('u',))' '('10', '13')' '(('d',), ('d',))' '('15', '18')' '(('r',), ('l',))' '('11', '17')' '(('l',), ('u',))' '('10', '12')' '(('r',), ('u',))' '('11', '7')' '(('l',), ('r',))' '('10', '8')' '(('d',), ('u',))' '('15', '3')' '(('d',), ('d',))' '('20', '8')' '(('r',), ('u',))' '('21', '3')' '(('u',), ('d',))' '('16', '8')' '(('r',), ('d',))' '('17', '13')' '(('r',), ('r',))' '('18', '14')' '(('r',), ('l',))' '('19', '13')' '(('u',), ('l',))' '('14', '12')' '(('d',), ('u',))' '('19', '7')' '(('u',), ('u',))' '('14', '2')' '(('l',), ('r',))' '('13', '3')' '(('u',), ('d',))' '('8', '8')' '(('l',), ('u',))' '('7', '3')' '(('u',), ('d',))' '('2', '8')' '(('l',), ('d',))' '('1', '13')' '(('d',), ('u',))' '('6', '8')' '(('l',), ('d',))' '('5', '13')' '(('r',), ('r',))' '('11', '14')' '(('u',), ('d',))' '('6', '19')' '(('d',), ('l',))' '('11', '18')' '(('l',), ('l',))' '('10', '17')' '(('d',), ('u',))' '('15', '12')' '(('r',), ('l',))' '('16', '11')' '(('r',), ('l',))' '('17', '10')' '(('l',), ('d',))' '('16', '15')' '(('d',), ('r',))' '('21', '16')' '(('r',), ('r',))' '('17', '17')' '(('r',), ('u',))' '('18', '12')' '(('u',), ('d',))' '('13', '17')' '(('r',), ('l',))' '('14', '16')' '(('l',), ('u',))' '('13', '11')' '(('l',), ('l',))' '('12', '10')' '(('d',), ('u',))' '('17', '5')' '(('l',), ('u',))' '('16', '0')' '(('r',), ('r',))' '('12', '1')' '(('l',), ('d',))' '('11', '6')' '(('d',), ('r',))' '('16', '7')' '(('r',), ('d',))' '('17', '12')' '(('r',), ('u',))' '('18', '7')' '(('l',), ('d',))' '('17', '12')' '(('u',), ('r',))' '('12', '13')' '(('l',), ('r',))' '('11', '14')' '(('d',), ('l',))' '('16', '13')' '(('u',), ('d',))' '('11', '18')' '(('l',), ('r',))' '('10', '19')' '(('d',), ('u',))' '('15', '14')' '(('u',), ('d',))' '('10', '19')' '(('d',), ('d',))' '('15', '24')' '(('d',), ('l',))' '('20', '18')' '(('r',), ('u',))' '('21', '13')' '(('l',), ('r',))' '('20', '14')' '(('r',), ('l',))' '('21', '13')' '(('l',), ('r',))' '('20', '14')' '(('u',), ('d',))' '('15', '19')' '(('d',), ('u',))' '('20', '14')' '(('u',), ('d',))' '('15', '19')' '(('r',), ('u',))' '('16', '14')' '(('u',), ('l',))' '('11', '13')' '(('u',), ('u',))' '('6', '8')' '(('u',), ('u',))' '('1', '3')' '(('r',), ('d',))' '('2', '8')' '(('d',), ('l',))' '('7', '7')' '(('l',), ('l',))' '('6', '6')' '(('d',), ('u',))' '('11', '1')' '(('l',), ('d',))' '('10', '6')' '(('u',), ('u',))' '('5', '1')' '(('d',), ('r',))' '('10', '2')' '(('u',), ('d',))' '('5', '7')' '(('r',), ('u',))' '('6', '2')' '(('d',), ('d',))' '('11', '7')' '(('r',), ('l',))' '('12', '6')' '(('u',), ('r',))' '('7', '7')' '(('l',), ('u',))' '('6', '2')' '(('d',), ('d',))' '('11', '7')' '(('d',), ('r',))' '('16', '8')' '(('u',), ('d',))' '('11', '13')' '(('l',), ('d',))' '('10', '18')' '(('r',), ('r',))' '('11', '19')' '(('u',), ('u',))' '('6', '14')' '(('u',), ('d',))' '('1', '19')' '(('l',), ('d',))' '('0', '24')' '(('r',), ('u',))' '('1', '19')' '(('l',), ('d',))' '('0', '24')' '(('d',), ('u',))' '('5', '19')' '(('r',), ('l',))' '('6', '18')' '(('l',), ('u',))' '('5', '13')' '(('r',), ('l',))' '('6', '12')' '(('d',), ('l',))' '('11', '11')' '(('d',), ('l',))' '('16', '10')' '(('d',), ('u',))' '('21', '5')' '(('r',), ('u',))' '('17', '0')' '(('l',), ('r',))' '('16', '1')' '(('r',), ('r',))' '('17', '2')' '(('l',), ('l',))' '('16', '1')' '(('d',), ('r',))' '('21', '2')' '(('r',), ('r',))' '('17', '3')' '(('l',), ('d',))' '('16', '8')' '(('r',), ('d',))' '('17', '13')' '(('r',), ('u',))' '('18', '8')' '(('l',), ('d',))' '('17', '13')' '(('r',), ('d',))' '('18', '18')' '(('l',), ('r',))' '('17', '19')' '(('r',), ('l',))' '('18', '18')' '(('l',), ('u',))' '('17', '13')' '(('u',), ('l',))' '('12', '12')' '(('d',), ('u',))' '('17', '7')' '(('u',), ('r',))' '('12', '8')' '(('u',), ('l',))' '('7', '7')' '(('u',), ('r',))' '('2', '8')' '(('l',), ('u',))' '('1', '3')' '(('d',), ('d',))' '('6', '8')' '(('l',), ('l',))' '('5', '7')' '(('u',), ('u',))' '('0', '2')' '(('d',), ('r',))' '('5', '3')' '(('r',), ('d',))' '('6', '8')' '(('l',), ('l',))' '('5', '7')' '(('r',), ('d',))' '('6', '12')' '(('r',), ('l',))' '('7', '11')' '(('l',), ('r',))' '('6', '12')' '(('u',), ('r',))' '('1', '13')' '(('r',), ('l',))' '('2', '12')' '(('d',), ('l',))' '('7', '11')' '(('d',), ('u',))' '('12', '6')' '(('l',), ('d',))' '('11', '11')' '(('d',), ('l',))' '('16', '10')' '(('r',), ('r',))' '('17', '11')' '(('l',), ('r',))' '('16', '12')' '(('l',), ('r',))' '('15', '13')' '(('u',), ('d',))' '('10', '18')' '(('r',), ('r',))' '('11', '19')' '(('l',), ('d',))' '('10', '24')' '(('u',), ('l',))' '('5', '18')' '(('r',), ('u',))' '('6', '13')' '(('u',), ('r',))' '('1', '14')' '(('r',), ('d',))' '('2', '19')' '(('l',), ('d',))' '('1', '24')' '(('l',), ('l',))' '('0', '18')' '(('r',), ('r',))' '('1', '19')' '(('r',), ('d',))' '('2', '24')' '(('r',), ('u',))' '('3', '19')' '(('d',), ('l',))' '('8', '18')' '(('u',), ('l',))' '('3', '17')' '(('d',), ('r',))' '('8', '18')' '(('u',), ('r',))' '('3', '19')' '(('l',), ('l',))' '('2', '18')' '(('l',), ('u',))' '('1', '13')' '(('d',), ('l',))' '('6', '12')' '(('r',), ('d',))' '('7', '17')' '(('u',), ('r',))' '('2', '18')' '(('r',), ('r',))' '('3', '19')' '(('d',), ('u',))' '('8', '14')' '(('l',), ('l',))' '('7', '13')' '(('u',), ('l',))' '('2', '12')' '(('l',), ('l',))' '('1', '11')' '(('r',), ('r',))' '('2', '12')' '(('l',), ('d',))' '('1', '17')' '(('d',), ('r',))' '('6', '18')' '(('u',), ('u',))' '('1', '13')' '(('l',), ('r',))' '('0', '14')' '(('d',), ('d',))' '('5', '19')' '(('u',), ('d',))' '('0', '24')' '(('d',), ('u',))' '('5', '19')' '(('r',), ('u',))' '('6', '14')' '(('d',), ('d',))' '('11', '19')' '(('r',), ('u',))' '('12', '14')' '(('u',), ('l',))' '('7', '13')' '(('r',), ('l',))' '('8', '12')' '(('l',), ('r',))' '('7', '13')' '(('l',), ('d',))' '('6', '18')' '(('r',), ('l',))' '('7', '17')' '(('d',), ('r',))' '('12', '18')' '(('u',), ('u',))' '('7', '13')' '(('u',), ('u',))' '('2', '8')' '(('l',), ('d',))' '('1', '13')' '(('d',), ('u',))' '('6', '8')' '(('l',), ('l',))' '('5', '7')' '(('d',), ('u',))' '('10', '2')' '(('d',), ('l',))' '('15', '1')' '(('d',), ('d',))' '('20', '6')' '(('u',), ('l',))' '('15', '5')' '(('d',), ('r',))' '('20', '6')' '(('u',), ('r',))' '('15', '7')' '(('d',), ('l',))' '('20', '6')' '(('r',), ('l',))' '('21', '5')' '(('r',), ('r',))' '('17', '6')' '(('u',), ('d',))' '('12', '11')' '(('r',), ('r',))' '('13', '12')' '(('r',), ('r',))' '('14', '13')' '(('l',), ('r',))' '('13', '14')' '(('r',), ('d',))' '('14', '19')' '(('l',), ('l',))' '('13', '13')' '(('l',), ('r',))' '('12', '14')' '(('d',), ('l',))' '('17', '13')' '(('u',), ('r',))' '('12', '14')' '(('r',), ('l',))' '('13', '13')' '(('r',), ('r',))' '('14', '14')' '(('d',), ('l',))' '('19', '13')' '(('d',), ('u',))' '('24', '8')' '(('u',), ('u',))' '('19', '3')' '(('d',), ('d',))' '('24', '8')' '(('u',), ('d',))' '('19', '13')' '(('d',), ('d',))' '('24', '18')' '(('l',), ('l',))' '('18', '17')' '(('r',), ('l',))' '('19', '16')' '(('d',), ('d',))' '('24', '21')' '(('l',), ('u',))' '('18', '16')' '(('r',), ('r',))' '('19', '17')' '(('l',), ('r',))' '('18', '18')' '(('u',), ('r',))' '('13', '19')' '(('d',), ('d',))' '('18', '24')' '(('u',), ('u',))' '('13', '19')' '(('d',), ('l',))' '('18', '18')' '(('l',), ('l',))' '('17', '17')' '(('l',), ('r',))' '('16', '18')' '(('u',), ('l',))' '('11', '17')' '(('r',), ('l',))' '('12', '16')' '(('r',), ('d',))' '('13', '21')' '(('d',), ('r',))' '('18', '17')' '(('u',), ('l',))' '('13', '16')' '(('r',), ('u',))' '('14', '11')' '(('l',), ('r',))' '('13', '12')' '(('u',), ('u',))' '('8', '7')' '(('l',), ('u',))' '('7', '2')' '(('r',), ('d',))' '('8', '7')' '(('d',), ('d',))' '('13', '12')' '(('l',), ('d',))' '('12', '17')' '(('r',), ('u',))' '('13', '12')' '(('l',), ('d',))' '('12', '17')' '(('r',), ('r',))' '('13', '18')' '(('u',), ('l',))' '('8', '17')' '(('l',), ('u',))' '('7', '12')' '(('d',), ('l',))' '('12', '11')' '(('l',), ('d',))' '('11', '16')' '(('u',), ('d',))' '('6', '21')' '(('l',), ('r',))' '('5', '17')' '(('d',), ('l',))' '('10', '16')' '(('u',), ('l',))' '('5', '15')' '(('r',), ('r',))' '('6', '11')' '(('r',), ('u',))' '('7', '6')' '(('u',), ('d',))' '('2', '11')' '(('r',), ('r',))' '('3', '12')' '(('l',), ('u',))' '('2', '7')' '(('r',), ('u',))' '('3', '2')' '(('l',), ('r',))' '('2', '3')' '(('r',), ('l',))' '('3', '2')' '(('d',), ('d',))' '('8', '7')' '(('u',), ('u',))' '('3', '2')' '(('d',), ('l',))' '('8', '1')' '(('l',), ('d',))' '('7', '6')' '(('l',), ('d',))' '('6', '11')' '(('d',), ('d',))' '('11', '16')' '(('u',), ('l',))' '('6', '15')' '(('u',), ('u',))' '('1', '10')' '(('r',), ('u',))' '('2', '5')' '(('l',), ('d',))' '('1', '10')' '(('d',), ('u',))' '('6', '5')' '(('l',), ('r',))' '('5', '6')' '(('u',), ('l',))' '('0', '5')' '(('d',), ('u',))' '('5', '0')' '(('d',), ('d',))' '('10', '5')' '(('u',), ('r',))' '('5', '6')' '(('r',), ('u',))' '('6', '1')' '(('d',), ('r',))' '('11', '2')' '(('d',), ('l',))' '('16', '1')' '(('u',), ('r',))' '('11', '2')' '(('l',), ('r',))' '('10', '3')' '(('d',), ('l',))' '('15', '2')' '(('d',), ('l',))' '('20', '1')' '(('u',), ('d',))' '('15', '6')' '(('r',), ('d',))' '('16', '11')' '(('r',), ('d',))' '('17', '16')' '(('u',), ('r',))' '('12', '17')' '(('l',), ('r',))' '('11', '18')' '(('r',), ('u',))' '('12', '13')' '(('r',), ('d',))' '('13', '18')' '(('d',), ('l',))' '('18', '17')' '(('u',), ('u',))' '('13', '12')' '(('d',), ('u',))' '('18', '7')' '(('r',), ('u',))' '('19', '2')' '(('l',), ('d',))' '('18', '7')' '(('u',), ('d',))' '('13', '12')' '(('l',), ('d',))' '('12', '17')' '(('d',), ('l',))' '('17', '16')' '(('l',), ('u',))' '('16', '11')' '(('l',), ('u',))' '('15', '6')' '(('r',), ('u',))' '('16', '1')' '(('r',), ('l',))' '('12', '0')' '(('d',), ('d',))' '('17', '5')' '(('l',), ('r',))' '('16', '6')' '(('d',), ('u',))' '('21', '1')' '(('r',), ('l',))' '('17', '0')' '(('r',), ('d',))' '('18', '5')' '(('r',), ('r',))' '('19', '6')' '(('u',), ('u',))' '('14', '1')' '(('d',), ('l',))' '('19', '0')' '(('u',), ('d',))' '('14', '5')' '(('l',), ('r',))' '('13', '6')' '(('l',), ('d',))' '('12', '11')' '(('u',), ('d',))' '('7', '16')' '(('d',), ('d',))' '('12', '21')' '(('r',), ('l',))' '('13', '20')' '(('u',), ('u',))' '('8', '15')' '(('u',), ('u',))' '('3', '10')' '(('l',), ('r',))' '('2', '11')' '(('d',), ('l',))' '('7', '10')' '(('r',), ('d',))' '('8', '15')' '(('l',), ('r',))' '('7', '16')' '(('l',), ('r',))' '('6', '17')' '(('u',), ('r',))' '('1', '18')' '(('r',), ('l',))' '('7', '17')' '(('d',), ('r',))' '('12', '18')' '(('d',), ('l',))' '('17', '17')' '(('u',), ('r',))' '('12', '18')' '(('l',), ('u',))' '('11', '13')' '(('d',), ('l',))' '('16', '12')' '(('u',), ('l',))' '('11', '11')' '(('r',), ('d',))' '('12', '16')' '(('l',), ('d',))' '('11', '21')' '(('l',), ('l',))' '('10', '20')' '(('r',), ('u',))' '('11', '15')' '(('d',), ('u',))' '('16', '10')' '(('u',), ('r',))' '('11', '11')' '(('l',), ('r',))' '('10', '12')' '(('r',), ('u',))' '('11', '7')' '(('l',), ('l',))' '('10', '6')' '(('d',), ('d',))' '('15', '11')' '(('r',), ('r',))' '('16', '12')' '(('u',), ('r',))' '('11', '13')' '(('l',), ('u',))' '('10', '8')' '(('r',), ('l',))' '('11', '7')' '(('l',), ('r',))' '('10', '8')' '(('r',), ('u',))' '('11', '3')' '(('r',), ('d',))' '('12', '8')' '(('r',), ('l',))' '('13', '7')' '(('d',), ('d',))' '('18', '12')' '(('r',), ('l',))' '('19', '11')' '(('d',), ('d',))' '('24', '16')' '(('l',), ('r',))' '('18', '17')' '(('l',), ('u',))' '('17', '12')' '(('r',), ('d',))' '('18', '17')' '(('r',), ('u',))' '('19', '12')' '(('d',), ('r',))' '('24', '13')' '(('l',), ('r',))' '('18', '14')' '(('u',), ('d',))' '('13', '19')' '(('r',), ('d',))' '('14', '24')' '(('d',), ('u',))' '('19', '19')' '(('d',), ('l',))' '('24', '18')' '(('l',), ('u',))' '('18', '13')' '(('u',), ('u',))' '('13', '8')' '(('d',), ('l',))' '('18', '7')' '(('l',), ('l',))' '('17', '6')' '(('r',), ('l',))' '('18', '5')' '(('u',), ('d',))' '('13', '10')' '(('u',), ('u',))' '('8', '5')' '(('l',), ('u',))' '('7', '0')' '(('u',), ('r',))' '('2', '1')' '(('r',), ('l',))' '('3', '0')' '(('l',), ('d',))' '('2', '5')' '(('d',), ('r',))' '('7', '6')' '(('r',), ('r',))' '('8', '7')' '(('d',), ('d',))' '('13', '12')' '(('u',), ('r',))' '('8', '13')' '(('u',), ('d',))' '('3', '18')' '(('d',), ('r',))' '('8', '19')' '(('l',), ('l',))' '('7', '18')' '(('u',), ('r',))' '('2', '19')' '(('d',), ('l',))' '('7', '18')' '(('r',), ('u',))' '('8', '13')' '(('u',), ('l',))' '('3', '12')' '(('d',), ('u',))' '('8', '7')' '(('d',), ('d',))' '('13', '12')' '(('d',), ('r',))' '('18', '13')' '(('u',), ('d',))' '('13', '18')' '(('l',), ('l',))' '('12', '17')' '(('d',), ('r',))' '('17', '18')' '(('r',), ('r',))' '('18', '19')' '(('l',), ('u',))' '('17', '14')' '(('r',), ('l',))' '('18', '13')' '(('r',), ('r',))' '('19', '14')' '(('l',), ('l',))' '('18', '13')' '(('u',), ('u',))' '('13', '8')' '(('r',), ('u',))' '('14', '3')' '(('d',), ('l',))' '('19', '2')' '(('d',), ('r',))' '('24', '3')' '(('u',), ('l',))' '('19', '7')' '(('d',), ('d',))' '('24', '12')' '(('u',), ('d',))' '('19', '17')' '(('u',), ('u',))' '('14', '12')' '(('l',), ('d',))' '('13', '17')' '(('r',), ('r',))' '('14', '18')' '(('d',), ('l',))' '('19', '17')' '(('d',), ('r',))' '('24', '18')' '(('u',), ('u',))' '('19', '13')' '(('d',), ('r',))' '('24', '14')' '(('l',), ('l',))' '('18', '13')' '(('u',), ('d',))' '('13', '18')' '(('r',), ('l',))' '('14', '17')' '(('d',), ('l',))' '('19', '16')' '(('l',), ('u',))' '('13', '11')' '(('u',), ('l',))' '('8', '10')' '(('l',), ('u',))' '('12', '5')' '(('d',), ('u',))' '('17', '0')' '(('r',), ('r',))' '('18', '1')' '(('r',), ('d',))' '('19', '6')' '(('d',), ('l',))' '('24', '5')' '(('l',), ('d',))' '('18', '10')' '(('u',), ('u',))' '('13', '5')' '(('r',), ('r',))' '('14', '6')' '(('l',), ('r',))' '('13', '7')' '(('l',), ('d',))' '('12', '12')' '(('u',), ('u',))' '('7', '7')' '(('l',), ('l',))' '('6', '6')' '(('u',), ('r',))' '('1', '7')' '(('d',), ('d',))' '('6', '12')' '(('l',), ('r',))' '('5', '13')' '(('r',), ('r',))' '('6', '14')' '(('u',), ('d',))' '('1', '19')' '(('d',), ('u',))' '('6', '14')' '(('r',), ('d',))' '('12', '19')' '(('u',), ('u',))' '('7', '14')' '(('d',), ('l',))' '('12', '13')' '(('d',), ('u',))' '('17', '8')' '(('u',), ('d',))' '('12', '13')' '(('d',), ('l',))' '('17', '12')' '(('l',), ('d',))' '('16', '17')' '(('l',), ('l',))' '('15', '16')' '(('d',), ('l',))' '('20', '15')' '(('r',), ('u',))' '('21', '10')' """
+        x_list = extract_states_from_x_u_lists(x_u_list)
+        # x_list = list(map(int, x_list))
+
+        self.sorted_waypoints = []  # list of (id_str, pos)
+        for key in x_list:
+            key_str = str(key)
+            for wp in self.waypoints:
+                if wp["id"] == key_str:
+                    # ('id', [x, y, z, yaw(deg)])
+                    self.sorted_waypoints.append((key_str, wp['pos']))
+                    break
+        
+        # formatted_table = format_waypoint_table_4_single_agent(self.sorted_waypoints)
+        # self.get_logger().info("\n" + formatted_table)
+
+        # 
+        # calculate transition
+        self.transition_cost_list  = [ 0. ]
+        self.accumulated_time_list = [ 0. ]
+        for i in range(1, self.sorted_waypoints.__len__()):
+            pos_last = self.sorted_waypoints[i - 1][1]
+            pos_curr = self.sorted_waypoints[i][1]
+            #
+            dx = pos_curr[0] - pos_last[0]
+            dy = pos_curr[1] - pos_last[1]
+            dz = pos_curr[2] - pos_last[2]            
+            cost_t = math.sqrt(dx**2 + dy**2 + dz**2) * self.cost_multipliers
+            acc_cost_t = self.accumulated_time_list[self.accumulated_time_list.__len__() - 1] + cost_t
+            self.transition_cost_list.append(cost_t)
+            self.accumulated_time_list.append(acc_cost_t)
+
+        formatted_table = format_waypoints_table_with_costs_4_single_agent(self.sorted_waypoints, self.transition_cost_list, self.accumulated_time_list)
+        self.get_logger().info("\n" + formatted_table)
+
+        # 控制流程变量
+        self.create_timer(ctrl_dt, self.control_loop)
+        self.start_time = self.get_clock().now().seconds_nanoseconds()[0]
+        self.ctrl_cntr             = 0
+        self.takeoff_duration      = 10.0
+        self.task_start_instant    = self.takeoff_duration
+        self.task_finished_instant = self.takeoff_duration
+        self.task_duration = self.accumulated_time_list[self.accumulated_time_list.__len__() - 1]
+        #
         self.task_start_time = None
+        self.task_flag       = False
+        self.ready_flag      = False
+        self.landing_flag    = False
+        self.finished_flag   = False
 
-        self.arm_uav()
-
-    def arm_uav(self):
-        for _ in range(5):
-            msg = self.set_arm_disarm_message(True)
-            self.arm_disarm_pub.publish(msg)
-            print_c("[Controller] Arming UAV...", color='yellow', bold=True)
-            time.sleep(0.2)
-
-    def set_arm_disarm_message(self, arm, disarm=False):
-        msg = UavCmd()
-        msg.header.stamp = self.get_clock().now().to_msg()
-        msg.id = -1
-        msg.is_arm = 1 if arm else -1 if disarm else 0
-        return msg
-
-    def load_waypoints(self):
-        script_dir = os.path.dirname(os.path.realpath(__file__))
-        file_path = os.path.join(script_dir, '../model', 'mapt.yaml')
-        print_c(f"[Controller] Loading waypoints from {file_path}", color='yellow', bold=True)
-
-        with open(file_path, 'r') as f:
-            self.waypoints = yaml.safe_load(f)['waypoint']
-
-        rho = ['4', '1', '3', '5', '6', '2', '7', '8', '9', '10']
-        self.sorted_waypoints = OrderedDict((k, self.waypoints[k]) for k in rho if k in self.waypoints)
+        # 自动解锁
+        self.get_logger().info(format_logger(f"[UAV{drone_id}] Arming UAV...", color='green', styles='bold'))
+        for _ in range(10):
+            self.arm_disarm_pub.publish(self.set_arm_disarm_message(True))
+            time.sleep(0.1)
 
     def uav_odom_callback(self, msg):
         self.uav_pose = msg
@@ -94,66 +171,147 @@ class UAVController(Node):
         self.uav_state = msg
         self.is_uav_state_updated = True
 
-    def calculate_velocity(self, err_x, err_y, err_z):
-        vx = saturation(self.pid_x.get_new_ctrl(err_x), UAV_MAX_SPEED_X, -UAV_MAX_SPEED_X)
-        vy = saturation(self.pid_y.get_new_ctrl(err_y), UAV_MAX_SPEED_Y, -UAV_MAX_SPEED_Y)
-        vz = saturation(self.pid_z.get_new_ctrl(err_z), UAV_MAX_SPEED_Z, -UAV_MAX_SPEED_Z)
+    def set_arm_disarm_message(self, arm, disarm=False):
+        msg = UavCmd()
+        msg.header.stamp = self.get_clock().now().to_msg()
+        #msg.id = self.drone_id
+        msg.id = -1
+        msg.is_arm = 1 if arm else -1 if disarm else 0
+        return msg
+
+    def publish_velocity(self, vx, vy, vz):
+        twist = Twist()
+        twist.linear.x = float(vx)
+        twist.linear.y = float(vy)
+        twist.linear.z = float(vz)
+        self.cmd_vel_pub.publish(twist)
+
+    def calculate_velocity(self, x, y, z, x_tgt, y_tgt, z_tgt):
+        self.pid_x.ref = x_tgt
+        self.pid_y.ref = y_tgt
+        self.pid_z.ref = z_tgt
+        vx = saturation(self.pid_x.get_new_ctrl(x), UAV_MAX_SPEED_X, -UAV_MAX_SPEED_X)
+        vy = saturation(self.pid_y.get_new_ctrl(y), UAV_MAX_SPEED_Y, -UAV_MAX_SPEED_Y)
+        vz = saturation(self.pid_z.get_new_ctrl(z), UAV_MAX_SPEED_Z, -UAV_MAX_SPEED_Z)
         vx = dead_zone(vx, UAV_SPEED_X_DEAD_ZONE, UAV_SPEED_X_DEAD_ZONE)
         vy = dead_zone(vy, UAV_SPEED_X_DEAD_ZONE, UAV_SPEED_X_DEAD_ZONE)
         return vx, vy, vz
 
     def control_loop(self):
-        if not (self.is_uav_pose_updated and self.is_uav_state_updated):
+        if not self.is_uav_pose_updated:
+            self.get_logger().info(format_logger(f"[UAV{self.drone_id}] pose NOT received...", color='yellow'))
             return
 
-        self.is_uav_pose_updated = False
-        self.is_uav_state_updated = False
+        if self.finished_flag:
+            return
 
-        x = self.uav_pose.pose.pose.position.x
-        y = self.uav_pose.pose.pose.position.y
-        z = self.uav_pose.pose.pose.position.z
+        now = self.get_clock().now().seconds_nanoseconds()[0] - self.start_time
 
-        now = time.time() - self.start_time
-        cmd = Twist()
 
         if now < self.takeoff_duration:
-            _, _, vz = self.calculate_velocity(0, 0, 0.8 - z)
-            cmd.linear.z = vz
-            self.cmd_vel_pub.publish(cmd)
-            print_c("[Controller] Taking off...", color='blue', bold=True)
-            return
+            # 起飞
+            vx, vy, vz = self.calculate_velocity(0., 0., self.uav_pose.pose.pose.position.z, 0., 0., -self.target_altitude)
+            self.publish_velocity(vx, vy, vz)
+            if int(self.ctrl_cntr) % 10 == 0:
+                self.get_logger().info(format_logger(f"[UAV{self.drone_id}] Taking off...", color='cyan'))
 
-        if self.current_target is None:
-            try:
-                self.current_key, self.current_target = next(self.waypoint_iter)
-                self.task_start_time = time.time()
-                print_c(f"[Controller] Going to point {self.current_key} : {self.current_target}", color='yellow', bold=True)
-            except StopIteration:
-                if z > 0.1:
-                    _, _, vz = self.calculate_velocity(0, 0, -z)
-                    cmd.linear.z = vz
-                    self.cmd_vel_pub.publish(cmd)
-                    print_c("[Controller] Landing...", color='blue', bold=True)
+        # === 起飞后导航至初始路点（等待就位阶段） ===
+        elif not self.ready_flag:
+            # 飞到第一个路点
+            key, target = self.sorted_waypoints[0]
+            px = self.uav_pose.pose.pose.position.x
+            py = self.uav_pose.pose.pose.position.y
+            pz = self.uav_pose.pose.pose.position.z
+            vx, vy, vz = self.calculate_velocity(px, py, pz, target[0], target[1], -self.target_altitude)
+            self.publish_velocity(vx, vy, vz)
+
+            err_x = target[0] - px
+            err_y = target[1] - py
+            dist = math.sqrt(err_x**2 + err_y**2)
+
+            if dist < self.waypt_radius:
+                self.ready_flag = True
+                self.task_start_instant = now
+                self.get_logger().info(format_logger(f"[UAV{self.drone_id}] Reached initial waypoint {key}", color='green', styles='bold'))
+
+            else:
+                if int(self.ctrl_cntr) % 10 == 0:
+                    self.get_logger().info(format_logger(f"[UAV{self.drone_id}] Moving to start point {key}", color='blue'))
+
+        elif not self.landing_flag and now < self.task_start_instant + self.task_duration:
+            # 飞行任务
+            if not self.task_flag:
+                self.task_flag = True
+                self.task_start_time = now
+                self.get_logger().info(format_logger(f"[UAV{self.drone_id}] Mission started...", color='cyan'))
+
+            key, target = self.sorted_waypoints[self.current_waypoint_index]
+            limited_time = self.accumulated_time_list[self.current_waypoint_index]
+            #
+            if self.current_waypoint_index >= len(self.sorted_waypoints) - 1:
+                self.get_logger().info(f"[UAV{self.drone_id}] All waypoints reached.")
+                self.landing_flag = True
+                self.task_finished_instant = now
+
+            px = self.uav_pose.pose.pose.position.x
+            py = self.uav_pose.pose.pose.position.y
+            pz = self.uav_pose.pose.pose.position.z
+
+            vx, vy, vz = self.calculate_velocity(px, py, pz, target[0], target[1], -self.target_altitude)
+            self.publish_velocity(vx, vy, vz)
+
+            err_x = target[0] - px
+            err_y = target[1] - py
+            err_z = self.target_altitude - pz
+            dist = math.sqrt(err_x**2 + err_y**2)
+            #
+            # Decision
+            should_switch_waypoint = False
+
+            if self.is_wait_until_time_exceeded:
+                # 要等到时间到了再换点
+                if dist < self.waypt_radius and now > limited_time + self.task_start_instant:
+                    should_switch_waypoint = True
+            else:
+                # 提前到达或时间到了都可以换点
+                if dist < self.waypt_radius or now > limited_time + self.task_start_instant:
+                    should_switch_waypoint = True
+            #
+            #
+            if should_switch_waypoint:
+                #
+                if dist < self.waypt_radius:
+                    self.get_logger().info(format_logger(f"[UAV{self.drone_id}] Reached waypoint {key} ({self.current_waypoint_index} / {len(self.sorted_waypoints) - 1}) | t: {now:.2f} / {limited_time + self.task_start_instant:.2f}", color='green',  styles='bold'))
                 else:
-                    self.cmd_vel_pub.publish(Twist())
-                    print_c("[Controller] Landed!", color='green', bold=True)
-                return
+                    self.get_logger().info(format_logger(f"[UAV{self.drone_id}] NOT Reach waypoint {key} ({self.current_waypoint_index} / {len(self.sorted_waypoints) - 1}) | t: {now:.2f} / {limited_time + self.task_start_instant:.2f}, time exceeded", color='yellow', styles='bold'))
+                #
+                if self.current_waypoint_index < len(self.sorted_waypoints) - 1:
+                    self.current_waypoint_index += 1
 
-        xt, yt, zt, duration = self.current_target
-        vx, vy, vz = self.calculate_velocity(xt - x, yt - y, zt - z)
-        cmd.linear.x = vx
-        cmd.linear.y = vy
-        cmd.linear.z = vz
-        self.cmd_vel_pub.publish(cmd)
+            if int(self.ctrl_cntr) % 20 == 0:
+                self.get_logger().info(format_logger(f"[UAV{self.drone_id}] Tgt id:x/y/z: {key}: {target[0]} / {target[1]} / {self.target_altitude} | Fbk x/y/z: {px} / {py} / {pz} | Vel x/y/z: {vx} / {vy} / {vz}", color='blue', styles='italic'))
 
-        elapsed = time.time() - self.task_start_time
-        if elapsed > duration or (abs(x - xt) < 0.1 and abs(y - yt) < 0.1 and abs(z - zt) < 0.1):
-            self.current_target = None
+        elif now < self.task_finished_instant + 15.0:
+            # 降落
+            err_z = 0.0 - self.uav_pose.pose.pose.position.z
+            vx, vy, vz = 0.0, 0.0, saturation(self.pid_z.get_new_ctrl(err_z), UAV_MAX_SPEED_Z, -UAV_MAX_SPEED_Z)
+            self.publish_velocity(vx, vy, vz)
+            self.get_logger().info(f"[UAV{self.drone_id}] Landing...")
 
+        else:
+            # 上锁
+            self.arm_disarm_pub.publish(self.set_arm_disarm_message(False, disarm=True))
+            self.get_logger().info(f"[UAV{self.drone_id}] Disarmed.")
+            self.finished_flag = True
+
+        self.ctrl_cntr += 1
+
+#
+# --------------------------------------------------------------------------------------------------
 
 def main(args=None):
     rclpy.init(args=args)
-    node = UAVController()
+    node = MultiDroneController()
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
@@ -161,4 +319,3 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
-

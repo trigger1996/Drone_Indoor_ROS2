@@ -47,10 +47,10 @@ UAV_MAX_SPEED_Z = 2.0
 
 #
 # --------------------------------------------------------------------------------------------------
-class MultiDroneController(Node):
+class DroneController(Node):
 
     def __init__(self):
-        super().__init__('multi_drone_control')
+        super().__init__('drone_control')
 
         self.declare_parameter('drone_id', 1)
         self.declare_parameter('map_file', '')
@@ -311,7 +311,7 @@ class MultiDroneController(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = MultiDroneController()
+    node = DroneController()
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
