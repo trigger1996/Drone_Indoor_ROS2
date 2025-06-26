@@ -47,6 +47,40 @@ def load_waypoints_from_yaml(yaml_path, is_visualize=True):
 
     return waypoints
 
+def load_transitions_from_yaml(yaml_path, is_visualize=True):
+    # 获取绝对路径
+    yaml_path = os.path.abspath(yaml_path)
+
+    with open(yaml_path, 'r') as file:
+        # 读取 YAML 文件内容
+        yaml_data = yaml.load(file, Loader=yaml.UnsafeLoader)
+
+    # 转为普通 dict
+    if isinstance(yaml_data, OrderedDict):
+        yaml_data = dict(yaml_data)
+
+    edges_data = yaml_data.get('edges', [])
+
+    edges_dict = {}
+    for edge_entry in edges_data:
+        from_id, to_id, attr = edge_entry
+        if from_id not in edges_dict:
+            edges_dict[from_id] = {}
+        edges_dict[from_id][to_id] = {
+            "control": attr.get("control"),
+            "weight": attr.get("weight")
+        }
+
+    if is_visualize:
+        print_c(f"\n✔ Loaded {sum(len(d) for d in edges_dict.values())} edges", color='green')
+        print_c(f"{'From':<6} -> {'To':<6} | {'Control':<8} | Weight", color='cyan')
+        print("-" * 60)
+        for from_id, to_dict in edges_dict.items():
+            for to_id, attr in to_dict.items():
+                print_c(f"{from_id:<6} -> {to_id:<6} | {attr['control']:<8} | {attr['weight']}")
+
+    return edges_dict
+
 def extract_states_from_x_u_lists(x_u_list):
     # for example : ""'15' '('u',)' '10' '('u',)' '5' '('r',)' '6' '('d',)' '11' '('r',)' '12' '('l',)' '11' '('r',)' '12' '('l',)' '11' '('d',)' '16' '('u',)' '11' '('r',)' '12' '('l',)' '11' '('u',)' '6' '('r',)' '7' '('r',)' '8' '('u',)' '3' '('d',)' '8' '('l',)' '7' '('d',)' '12' '('d',)' '17' '('l',)' '16' '('r',)' '17' '('l',)' '16' '('u',)' '11' '('d',)' '16' '('l',)' '15' '('d',)' '20' '('u',)' '15' '('d',)' '20' '('u',)' '15' '('r',)' '16' '('r',)' '17' '('l',)' '16' '('d',)' '21' '('l',)' '20' '('u',)' '15' '('d',)' '20' '('r',)' '16' '('u',)' '11' '('r',)' '12' '('l',)' '11' '('u',)' '6' '('u',)' '1' '('d',)' '6' '('l',)' '5' '('u',)' '0' '('r',)' '1' '('d',)' '6' '('l',)' '5' '('d',)' '10' '('r',)' '11' '('d',)' '16' '('l',)' '15' '('u',)' '10' '('d',)' '15' '('d',)' '20' '('r',)' '21' '('u',)' '16' '('d',)' '21' '('r',)' '17' '('l',)' '16' '('r',)' '17' '('u',)' '12' '('u',)' '7' '('u',)' '2' '('l',)' '1' '('r',)' '2' '('l',)' '1' '('l',)' '0' '('r',)' '1' '('d',)' '6' '('r',)' '7' '('l',)' '6' '('u',)' '1' '('d',)' '6' '('r',)' '7' '('r',)' '8' '('d',)' '13' '('u',)' '8' '('l',)' '7' '('d',)' '12' '('r',)' '13' '('r',)' '14' '('l',)' '13' '('u',)' '8' '('u',)' '3' '('l',)' '2' '('l',)' '1' '('l',)' '0' '('d',)' '5' '('d',)' '10' '('d',)' '15' '('d',)' '20' '('r',)' '21' '('r',)' '17' '('r',)' '18' '('u',)' '13' '('r',)' '14' '('l',)' '13' '('d',)' '18' '('u',)' '13' '('u',)' '8' '('u',)' '3' '('d',)' '8' '('d',)' '13' '('l',)' '12' '('u',)' '7' '('u',)' '2' '('d',)' '7' '('r',)' '8' '('l',)' '7' '('d',)' '12' '('d',)' '17' '('l',)' '16' '('l',)' '15' '('d',)' '20' '('r',)' '21' '('u',)' '16' '('u',)' '11' '('u',)' '6' '('r',)' '7' '('r',)' '8' '('l',)' '7' '('r',)' '8' '('l',)' '7' '('r',)' '8' '('u',)' '3' '('d',)' '8' '('l',)' '7' '('r',)' '8' '('l',)' '7' '('r',)' '8' '('u',)' '3' '('l',)' '2' '('d',)' '7' '('d',)' '12' '('u',)' '7' '('r',)' '8' '('l',)' '7' '('r',)' '8' '('l',)' '7' '('r',)' '8' '('d',)' '13' '('u',)' '8' '('d',)' '13' '('d',)' '18' '('r',)' '19' '('u',)' '14' '('l',)' '13' '('r',)' '14'"""
 
