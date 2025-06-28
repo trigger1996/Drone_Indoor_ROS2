@@ -115,7 +115,12 @@ class GazeboController(Node):
             pos = wp["pos"]  # [x, y, z, yaw]
             wp_id = wp["id"]
 
-            x, y, z = pos[0], pos[1], 0.125        # x, y, z = pos[0], pos[1], pos[2]
+            x_t, y_t, z_t = pos[0], pos[1], 0.125        # x, y, z = pos[0], pos[1], pos[2]
+            #
+            x = y_t
+            y = x_t
+            z = z_t
+            #
             name = f"waypoint_{wp_id}"
             self.get_logger().info(format_logger(f"Spawning {name} at ({x:.2f}, {y:.2f}, {z:.2f})", color="cyan"))
 

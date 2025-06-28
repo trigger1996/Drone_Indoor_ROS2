@@ -55,11 +55,39 @@ class MultiDroneController(Node):
         self.declare_parameter('drone_id',  1)
         self.declare_parameter('drone_num', 2)
         self.declare_parameter('map_file', '')
+        for i in range(1, 11):
+            self.declare_parameter(f'initial_pose_{i}_x', 0.0)
+            self.declare_parameter(f'initial_pose_{i}_y', 0.0)
+            self.declare_parameter(f'initial_pose_{i}_z', 0.83)
+            self.declare_parameter(f'initial_pose_{i}_yaw', 0.0)
+       
         ctrl_dt = 0.1
 
         drone_id  = self.get_parameter('drone_id').get_parameter_value().integer_value
-        drone_num = self.get_parameter('drone_num').get_parameter_value().integer_value        
+        drone_num = self.get_parameter('drone_num').get_parameter_value().integer_value
         self.drone_id = drone_id
+
+        self.initial_poses = {}
+        for i in range(1, 11):
+            x   = self.get_parameter(f'initial_pose_{i}_x').get_parameter_value().double_value
+            y   = self.get_parameter(f'initial_pose_{i}_y').get_parameter_value().double_value
+            z   = self.get_parameter(f'initial_pose_{i}_z').get_parameter_value().double_value
+            yaw = self.get_parameter(f'initial_pose_{i}_yaw').get_parameter_value().double_value
+
+            if i == drone_id:
+                self.x_offset = x               # in NED frame
+                self.y_offset = y
+                self.z_offset = z
+                self.yaw_offset = yaw
+            else:
+                self.initial_poses[i] = {
+                    'x': x,                     # in NED frame
+                    'y': y,
+                    'z': z,
+                    'yaw': yaw
+                }
+
+        self.get_logger().info(format_logger(f"[Drone {self.drone_id}] Offsets: x={self.x_offset:.2f}, y={self.y_offset:.2f}, z={self.z_offset:.2f}, yaw={self.yaw_offset:.2f}", color='bright_green', styles='bold'))
 
         ns = f"/px4_{self.drone_id}"
         qos = QoSProfile(
@@ -222,6 +250,10 @@ class MultiDroneController(Node):
 
     def uav_odom_callback(self, msg):
         self.uav_pose = msg
+        self.uav_pose.pose.pose.position.x += self.x_offset
+        self.uav_pose.pose.pose.position.y += self.y_offset
+        self.uav_pose.pose.pose.position.z += self.z_offset                
+        # TODO yaw offset
         self.is_uav_pose_updated = True
 
     def uav_state_callback(self, msg):
@@ -232,9 +264,9 @@ class MultiDroneController(Node):
         #
         # check for reaching position
         if not self.ready_flag:
-            px_t = msg.pose.pose.position.x
-            py_t = msg.pose.pose.position.y
-            pz_t = msg.pose.pose.position.z
+            px_t = msg.pose.pose.position.x + self.initial_poses[robot_id]['x']
+            py_t = msg.pose.pose.position.y + self.initial_poses[robot_id]['y']
+            pz_t = msg.pose.pose.position.z + self.initial_poses[robot_id]['z']
             
             target_x = self.other_drone_initial_pos[robot_id][1][0]     # drone_id : (key_str, wp['pos'])
             target_y = self.other_drone_initial_pos[robot_id][1][1]
