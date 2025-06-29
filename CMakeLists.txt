@@ -68,6 +68,7 @@ install(PROGRAMS
 install(PROGRAMS
   src/utils2/functions.py
   src/utils2/PID.py
+  src/utils2/apf.py
   src/utils2/vis.py
   src/utils2/waypts.py
   DESTINATION lib/${PROJECT_NAME}/utils2
