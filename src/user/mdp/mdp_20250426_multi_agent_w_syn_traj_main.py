@@ -100,7 +100,7 @@ class MultiDroneController(Node):
 
         #
         # Parameters
-        self.cost_multipliers            = 5. 
+        self.cost_multipliers            = 7.5 
         self.waypt_radius                = 0.25
         self.target_altitude             = 0.8
         self.current_waypoint_index      = 0
@@ -188,7 +188,8 @@ class MultiDroneController(Node):
             #
             try:
                 edge_info = self.edges[id_last][id_curr]
-                cost_t = edge_info['weight'] * self.cost_multipliers
+                #cost_t = edge_info['weight'] * self.cost_multipliers
+                cost_t = 1. * self.cost_multipliers
 
                 acc_cost_t = self.accumulated_time_list[self.accumulated_time_list.__len__() - 1] + cost_t
                 self.transition_cost_list.append(cost_t)
@@ -354,7 +355,7 @@ class MultiDroneController(Node):
             vx, vy, vz = self.calculate_velocity(px, py, pz, target[0], target[1], -self.target_altitude)
             # Added, apf
             #self.get_logger().info(format_logger(f"[UAV{self.drone_id}] other_uav_pos: {self.other_uav_pos}", color='cyan'))
-            vx_p, vy_p = apf_collision_avoidance([px, py], self.other_uav_pos , [vx, vy], k =0.125, radius=0.5)         # 不要让apf参数进入PID反馈
+            vx_p, vy_p = apf_collision_avoidance([px, py], self.other_uav_pos , [vx, vy], k=4.5, radius=2.25)         # 不要让apf参数进入PID反馈
             #
             self.publish_velocity(vx_p, vy_p, vz)
 
@@ -396,7 +397,7 @@ class MultiDroneController(Node):
 
             vx, vy, vz = self.calculate_velocity(px, py, pz, target[0], target[1], -self.target_altitude)
             # Added, apf
-            vx_p, vy_p = apf_collision_avoidance([px, py], self.other_uav_pos, [vx, vy], k =0.125, radius=0.5)
+            vx_p, vy_p = apf_collision_avoidance([px, py], self.other_uav_pos, [vx, vy], k=4.5, radius=2.25)
             #
             # for debugging
             if self.drone_id == 2 and int(self.ctrl_cntr) % 20 == 0:
