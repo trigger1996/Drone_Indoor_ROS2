@@ -61,7 +61,7 @@ class MultiDroneController(Node):
             self.declare_parameter(f'initial_pose_{i}_y', 0.0)
             self.declare_parameter(f'initial_pose_{i}_z', 0.83)
             self.declare_parameter(f'initial_pose_{i}_yaw', 0.0)
-       
+
         ctrl_dt = 0.1
 
         drone_id  = self.get_parameter('drone_id').get_parameter_value().integer_value
@@ -258,7 +258,7 @@ class MultiDroneController(Node):
         self.uav_pose = msg
         self.uav_pose.pose.pose.position.x += self.x_offset
         self.uav_pose.pose.pose.position.y += self.y_offset
-        self.uav_pose.pose.pose.position.z += self.z_offset                
+        self.uav_pose.pose.pose.position.z += self.z_offset
         # TODO yaw offset
         self.is_uav_pose_updated = True
 
@@ -375,6 +375,7 @@ class MultiDroneController(Node):
 
             if int(self.ctrl_cntr) % 20 == 0:
                 self.get_logger().info(format_logger(f"[UAV{self.drone_id}] Tgt id:x/y/z/dist: {key}: {target[0]} / {target[1]} / {self.target_altitude} / {dist} | Fbk x/y/z: {px} / {py} / {pz} | Vel x/y/z: {vx} / {vy} / {vz} | FinalV x/y: {vx_p} / {vy_p}", color='cyan', styles='italic'))
+
 
         elif not self.landing_flag and now < self.task_start_instant + self.task_duration:
             # 飞行任务

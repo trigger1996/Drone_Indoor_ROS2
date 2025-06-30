@@ -18,6 +18,7 @@ from transforms3d.euler import quat2euler
 
 from utils2.vis import print_c, format_logger
 from utils2.PID import PID_Position
+from utils2.apf import apf_collision_avoidance
 from utils2.functions import saturation, dead_zone
 from utils2.waypts import load_waypoints_from_yaml, extract_states_for_all_robots, format_waypoint_table_4_single_agent, format_waypoints_table_with_costs_4_single_agent
 
@@ -55,11 +56,39 @@ class MultiDroneController(Node):
         self.declare_parameter('drone_id',  1)
         self.declare_parameter('drone_num', 2)
         self.declare_parameter('map_file', '')
+        for i in range(1, 11):
+            self.declare_parameter(f'initial_pose_{i}_x', 0.0)
+            self.declare_parameter(f'initial_pose_{i}_y', 0.0)
+            self.declare_parameter(f'initial_pose_{i}_z', 0.83)
+            self.declare_parameter(f'initial_pose_{i}_yaw', 0.0)
+
         ctrl_dt = 0.1
 
         drone_id  = self.get_parameter('drone_id').get_parameter_value().integer_value
-        drone_num = self.get_parameter('drone_num').get_parameter_value().integer_value        
+        drone_num = self.get_parameter('drone_num').get_parameter_value().integer_value
         self.drone_id = drone_id
+
+        self.initial_poses = {}
+        for i in range(1, 11):
+            x   = self.get_parameter(f'initial_pose_{i}_x').get_parameter_value().double_value
+            y   = self.get_parameter(f'initial_pose_{i}_y').get_parameter_value().double_value
+            z   = self.get_parameter(f'initial_pose_{i}_z').get_parameter_value().double_value
+            yaw = self.get_parameter(f'initial_pose_{i}_yaw').get_parameter_value().double_value
+
+            if i == drone_id:
+                self.x_offset = x               # in NED frame
+                self.y_offset = y
+                self.z_offset = z
+                self.yaw_offset = yaw
+            else:
+                self.initial_poses[i] = {
+                    'x': x,                     # in NED frame
+                    'y': y,
+                    'z': z,
+                    'yaw': yaw
+                }
+
+        self.get_logger().info(format_logger(f"[Drone {self.drone_id}] Offsets: x={self.x_offset:.2f}, y={self.y_offset:.2f}, z={self.z_offset:.2f}, yaw={self.yaw_offset:.2f}", color='bright_green', styles='bold'))
 
         ns = f"/px4_{self.drone_id}"
         qos = QoSProfile(
@@ -189,6 +218,10 @@ class MultiDroneController(Node):
         #
         # self.get_logger().info(format_logger(f"[UAV{drone_id}] drone_num: {drone_num} | " + str(self.other_drone_initial_pos), color='red', styles='bold'))
 
+        # Added
+        # for APF collision avoidance
+        self.other_uav_pos = dict()         # 只记录x和y
+
         # 控制流程变量
         self.create_timer(ctrl_dt, self.control_loop)
         self.start_time = self.get_clock().now().seconds_nanoseconds()[0]
@@ -219,6 +252,10 @@ class MultiDroneController(Node):
 
     def uav_odom_callback(self, msg):
         self.uav_pose = msg
+        self.uav_pose.pose.pose.position.x += self.x_offset
+        self.uav_pose.pose.pose.position.y += self.y_offset
+        self.uav_pose.pose.pose.position.z += self.z_offset
+        # TODO yaw offset
         self.is_uav_pose_updated = True
 
     def uav_state_callback(self, msg):
@@ -227,11 +264,12 @@ class MultiDroneController(Node):
 
     def other_uav_pos_callback(self, msg, robot_id):
         #
+        # Task 1
         # check for reaching position
         if not self.ready_flag:
-            px_t = msg.pose.pose.position.x
-            py_t = msg.pose.pose.position.y
-            pz_t = msg.pose.pose.position.z
+            px_t = msg.pose.pose.position.x + self.initial_poses[robot_id]['x']
+            py_t = msg.pose.pose.position.y + self.initial_poses[robot_id]['y']
+            pz_t = msg.pose.pose.position.z + self.initial_poses[robot_id]['z']
             
             target_x = self.other_drone_initial_pos[robot_id][1][0]     # drone_id : (key_str, wp['pos'])
             target_y = self.other_drone_initial_pos[robot_id][1][1]
@@ -252,6 +290,10 @@ class MultiDroneController(Node):
                 is_all_reached = False
                 break
         self.is_all_other_drone_reach_inital_pos = is_all_reached
+
+        # Task 2
+        self.other_uav_pos[robot_id] = [msg.pose.pose.position.x + self.initial_poses[robot_id]['x'], 
+                                        msg.pose.pose.position.y + self.initial_poses[robot_id]['y']]
 
         self.other_uav_cb_idxs[robot_id] += 1
 
@@ -297,7 +339,7 @@ class MultiDroneController(Node):
             vx, vy, vz = self.calculate_velocity(0., 0., self.uav_pose.pose.pose.position.z, 0., 0., -self.target_altitude)
             self.publish_velocity(vx, vy, vz)
             if int(self.ctrl_cntr) % 10 == 0:
-                self.get_logger().info(format_logger(f"[UAV{self.drone_id}] Taking off...", color='cyan'))
+                self.get_logger().info(format_logger(f"[UAV{self.drone_id}] Taking off...", color='bright_cyan', styles='bold'))
 
         # === 起飞后导航至初始路点（等待就位阶段） ===
         elif not self.ready_flag:
@@ -307,7 +349,11 @@ class MultiDroneController(Node):
             py = self.uav_pose.pose.pose.position.y
             pz = self.uav_pose.pose.pose.position.z
             vx, vy, vz = self.calculate_velocity(px, py, pz, target[0], target[1], -self.target_altitude)
-            self.publish_velocity(vx, vy, vz)
+            # Added, apf
+            #self.get_logger().info(format_logger(f"[UAV{self.drone_id}] other_uav_pos: {self.other_uav_pos}", color='cyan'))
+            vx_p, vy_p = apf_collision_avoidance([px, py], self.other_uav_pos , [vx, vy], k=4.5, radius=2.25)         # 不要让apf参数进入PID反馈
+            #
+            self.publish_velocity(vx_p, vy_p, vz)
 
             err_x = target[0] - px
             err_y = target[1] - py
@@ -324,7 +370,8 @@ class MultiDroneController(Node):
                     self.get_logger().info(format_logger(f"[UAV{self.drone_id}] Other {str(self.is_other_drone_reach_initial_pos)} \n", color='blue'))
 
             if int(self.ctrl_cntr) % 20 == 0:
-                self.get_logger().info(format_logger(f"[UAV{self.drone_id}] Tgt id:x/y/z/dist: {key}: {target[0]} / {target[1]} / {self.target_altitude} / {dist} | Fbk x/y/z: {px} / {py} / {pz} | Vel x/y/z: {vx} / {vy} / {vz}", color='cyan', styles='italic'))
+                self.get_logger().info(format_logger(f"[UAV{self.drone_id}] Tgt id:x/y/z/dist: {key}: {target[0]} / {target[1]} / {self.target_altitude} / {dist} | Fbk x/y/z: {px} / {py} / {pz} | Vel x/y/z: {vx} / {vy} / {vz} | FinalV x/y: {vx_p} / {vy_p}", color='cyan', styles='italic'))
+
 
         elif not self.landing_flag and now < self.task_start_instant + self.task_duration:
             # 飞行任务
@@ -346,7 +393,16 @@ class MultiDroneController(Node):
             pz = self.uav_pose.pose.pose.position.z
 
             vx, vy, vz = self.calculate_velocity(px, py, pz, target[0], target[1], -self.target_altitude)
-            self.publish_velocity(vx, vy, vz)
+            # Added, apf
+            vx_p, vy_p = apf_collision_avoidance([px, py], self.other_uav_pos, [vx, vy], k=4.5, radius=2.25)
+            #
+            # for debugging
+            if self.drone_id == 2 and int(self.ctrl_cntr) % 20 == 0:
+                self.get_logger().info(format_logger(f"[UAV{self.drone_id}] uav2 pos: x/y/z: {px} / {py} / {pz}", color='bright_magenta', styles='italic'))
+            if self.drone_id == 1 and int(self.ctrl_cntr) % 20 == 0:
+                self.get_logger().info(format_logger(f"[UAV{self.drone_id}] uav2 pos: x/y/z: {self.other_uav_pos}", color='bright_magenta', styles='italic'))
+            #   
+            self.publish_velocity(vx_p, vy_p, vz)
 
             err_x = target[0] - px
             err_y = target[1] - py
@@ -377,7 +433,7 @@ class MultiDroneController(Node):
                     self.current_waypoint_index += 1
 
             if int(self.ctrl_cntr) % 20 == 0:
-                self.get_logger().info(format_logger(f"[UAV{self.drone_id}] Tgt id:x/y/z: {key}: {target[0]} / {target[1]} / {self.target_altitude} | Fbk x/y/z: {px} / {py} / {pz} | Vel x/y/z: {vx} / {vy} / {vz}", color='blue', styles='italic'))
+                self.get_logger().info(format_logger(f"[UAV{self.drone_id}] Tgt id:x/y/z: {key}: {target[0]} / {target[1]} / {self.target_altitude} | Fbk x/y/z: {px} / {py} / {pz} | Vel x/y/z: {vx} / {vy} / {vz} | FinalV x/y: {vx_p} / {vy_p}", color='blue', styles='italic'))
 
         elif now < self.task_finished_instant + 15.0:
             # 降落
