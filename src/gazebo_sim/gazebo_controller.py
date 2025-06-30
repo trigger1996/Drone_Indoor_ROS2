@@ -100,11 +100,26 @@ class GazeboController(Node):
             time.sleep(0.025)
 
     def spawn_waypoints_from_yaml(self, yaml_path: str, radius=0.5):
-        """从yaml加载路点并可视化为Gazebo中的圆柱体"""
+        """从yaml加载路点并在Gazebo中可视化为圆柱体，并自动为不同ap分配颜色"""
         self.get_logger().info(format_logger(f"LOADING waypoints from: {yaml_path}", color="blue"))
 
         # 加载路点
         waypoint_list = load_waypoints_from_yaml(yaml_path, is_visualize=True)
+
+        # 可用颜色池（RGBA），不透明度建议保持一致
+        color_pool = [
+            '0.0 0.6 1.0 0.9',    # 蓝
+            '1.0 0.6 0.0 0.9',    # 橙
+            '0.607 0.972 0.047 0.9',  # 绿
+            '0.8 0.2 1.0 0.9',    # 紫
+            '1.0 0.2 0.2 0.9',    # 红
+            '0.0 1.0 1.0 0.9',    # 青
+            '1.0 1.0 0.0 0.9',    # 黄
+            '0.5 0.5 0.5 0.6'     # 灰（最后一组留作备用）
+        ]
+
+        ap_color_map = {}  # ap类型到颜色的动态映射表
+        color_index = 0    # 当前使用的颜色索引
 
         # 调用服务
         spawn_client = self.create_client(SpawnEntity, '/spawn_entity')
@@ -115,21 +130,42 @@ class GazeboController(Node):
             pos = wp["pos"]  # [x, y, z, yaw]
             wp_id = wp["id"]
 
-            x_t, y_t, z_t = pos[0], pos[1], 0.125        # x, y, z = pos[0], pos[1], pos[2]
-            #
+            x_t, y_t, z_t = pos[0], pos[1], 0.125
             x = y_t
             y = x_t
             z = z_t
-            #
+
             name = f"waypoint_{wp_id}"
-            self.get_logger().info(format_logger(f"Spawning {name} at ({x:.2f}, {y:.2f}, {z:.2f})", color="cyan"))
+
+            # 处理 ap 字段
+            ap_list = wp.get("ap", [])
+            if ap_list and isinstance(ap_list[0], str):
+                ap_str = ap_list[0].strip("{} ").lower()
+            else:
+                ap_str = ''
+
+            # 自动分配颜色
+            if ap_str not in ap_color_map:
+                if color_index < len(color_pool) - 1:
+                    ap_color_map[ap_str] = color_pool[color_index]
+                    color_index += 1
+                else:
+                    # 如果超出颜色池，重复最后一种颜色（灰色）
+                    ap_color_map[ap_str] = color_pool[-1]
+
+            color = ap_color_map[ap_str]
+
+            self.get_logger().info(format_logger(
+                f"Spawning {name} at ({x:.2f}, {y:.2f}, {z:.2f}) with ap: {ap_str} → color: {color}",
+                color="cyan"
+            ))
 
             self.spawn_cylinder(
                 client=spawn_client,
                 name=name,
                 x=x, y=y, z=z,
                 radius=radius,
-                color="0.607 0.972 0.047 0.9",  # 蓝色表示 waypoints
+                color=color,
                 height=0.1
             )
 
