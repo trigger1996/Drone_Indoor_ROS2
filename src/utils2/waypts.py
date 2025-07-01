@@ -24,10 +24,12 @@ def load_waypoints_from_yaml(yaml_path, is_visualize=True):
     waypoints = []
     for wp_id, wp_info in waypoint_data.items():
         pos = wp_info["pos"]  # [x, y, z, yaw]
+        ap  = wp_info["ap"]
         transition = wp_info["transition"]
         waypoints.append({
             "id": wp_id,
             "pos": pos,
+            "ap": ap,
             "transition": transition
         })
 

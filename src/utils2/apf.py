@@ -73,6 +73,29 @@ def combination_func(u_original, u_apf):
             u_output = 0.0
     return u_output
 
+
+def add_random_repulsion(force, max_random_strength=0.2):
+    """
+    给已有的合力添加一个小的随机方向斥力，用于打破对称。
+    参数：
+        force: 原始合力向量 (np.array([fx, fy]))
+        max_random_strength: 随机斥力的最大幅度（作为扰动）
+    返回：
+        添加扰动后的合力向量
+    """
+    # 生成一个随机方向单位向量
+    theta = np.random.uniform(0, 2 * np.pi)
+    random_direction = np.array([np.cos(theta), np.sin(theta)])
+
+    # 生成随机幅度
+    magnitude = np.random.uniform(0, max_random_strength)
+
+    # 合成扰动
+    random_force = magnitude * random_direction
+
+    return force + random_force
+
+
 def apf_collision_avoidance(uav_pos, other_uav_pos, u, k, radius, is_visualize=True, visualize_force_threshold=0.33):
     '''
     APF避碰控制器，基于compute_apf_force函数（二维）
@@ -98,6 +121,8 @@ def apf_collision_avoidance(uav_pos, other_uav_pos, u, k, radius, is_visualize=T
     # 计算合力（此处 goal=None，只考虑斥力）
     force = compute_apf_force(position=pos, goal=None, obstacles=obstacles, k_att=0.0, k_rep=k, rep_radius=radius)
 
+    force = add_random_repulsion(force, max_random_strength=0.2)
+
     # 可视化检测
     if is_visualize:
         if np.linalg.norm(force) > visualize_force_threshold:
@@ -108,5 +133,7 @@ def apf_collision_avoidance(uav_pos, other_uav_pos, u, k, radius, is_visualize=T
     # 分别合并原始速度与斥力矢量
     ux_p = combination_func(u[0], force[0])
     uy_p = combination_func(u[1], force[1])
+    # ux_p = u[0] + force[0]
+    # uy_p = u[1] + force[0]
 
     return ux_p, uy_p

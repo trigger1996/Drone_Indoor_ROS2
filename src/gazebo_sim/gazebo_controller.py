@@ -36,7 +36,7 @@ class GazeboController(Node):
         #self.reset_world()                     # Added, commented
         
         # 2. 从参数生成目标点和障碍物
-        self.get_logger().info(format_logger(f"SPAWNING target / obstacle locations ...", color="red", styles="bold"))
+        self.get_logger().info(format_logger(f"[gazebo controller] SPAWNING target / obstacle locations ...", color="red", styles="bold"))
 
         #
         #self.spawn_objects()
@@ -123,22 +123,16 @@ class GazeboController(Node):
 
         # 调用服务
         spawn_client = self.create_client(SpawnEntity, '/spawn_entity')
+        # 
+        # TODO IF IN DEBUGGING
+        # COMMENT THE FOLLOWING LINE
         while not spawn_client.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('spawn_entity service not available, waiting...')
 
         for wp in waypoint_list:
-            pos = wp["pos"]  # [x, y, z, yaw]
-            wp_id = wp["id"]
-
-            x_t, y_t, z_t = pos[0], pos[1], 0.125
-            x = y_t
-            y = x_t
-            z = z_t
-
-            name = f"waypoint_{wp_id}"
-
             # 处理 ap 字段
             ap_list = wp.get("ap", [])
+            # self.get_logger().info(format_logger(f"[gazebo controller] wp / ap: {wp} / {ap_list}", color="bright_blue", styles="bold"))
             if ap_list and isinstance(ap_list[0], str):
                 ap_str = ap_list[0].strip("{} ").lower()
             else:
@@ -153,6 +147,25 @@ class GazeboController(Node):
                     # 如果超出颜色池，重复最后一种颜色（灰色）
                     ap_color_map[ap_str] = color_pool[-1]
 
+                self.get_logger().info(format_logger(f"[gazebo controller] assigning ap: {ap_str} with color {ap_color_map[ap_str]}", color="bright_blue", styles="bold"))
+                    
+        for wp in waypoint_list:
+            pos = wp["pos"]  # [x, y, z, yaw]
+            wp_id = wp["id"]
+
+            x_t, y_t, z_t = pos[0], pos[1], 0.125
+            x = y_t
+            y = x_t
+            z = z_t
+
+            name = f"waypoint_{wp_id}"
+
+            ap_list = wp.get("ap", [])
+            # self.get_logger().info(format_logger(f"[gazebo controller] wp / ap: {wp} / {ap_list}", color="bright_blue", styles="bold"))
+            if ap_list and isinstance(ap_list[0], str):
+                ap_str = ap_list[0].strip("{} ").lower()
+            else:
+                ap_str = ''
             color = ap_color_map[ap_str]
 
             self.get_logger().info(format_logger(
