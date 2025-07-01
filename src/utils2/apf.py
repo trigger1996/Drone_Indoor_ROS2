@@ -121,7 +121,9 @@ def apf_collision_avoidance(uav_pos, other_uav_pos, u, k, radius, is_visualize=T
     # 计算合力（此处 goal=None，只考虑斥力）
     force = compute_apf_force(position=pos, goal=None, obstacles=obstacles, k_att=0.0, k_rep=k, rep_radius=radius)
 
-    force = add_random_repulsion(force, max_random_strength=0.2)
+    norm = np.linalg.norm(force)
+    if norm > 0.:
+        force = add_random_repulsion(force, max_random_strength=0.2)
 
     # 可视化检测
     if is_visualize:
