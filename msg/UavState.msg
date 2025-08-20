@@ -1,4 +1,4 @@
-std_msgs/Header header
+Header header
 
 uint64 timestamp			# time since system start (microseconds)
 
