@@ -1,4 +1,6 @@
 #
+# THIS IS FOR REAL DRONES!
+#
 # Step 1
 roslaunch vrpn_client_ros sample_test_200.launch                                # initialize vrpn
 #
