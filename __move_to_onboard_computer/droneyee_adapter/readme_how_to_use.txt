@@ -33,12 +33,33 @@ cd droneyee_adapter/mavlink-router/mavlink-router/
 
 
 
+
+
+
+
+
+
 # HOW TO INSTALL
 #
 1. COPY the folder to onboard computer
 
 2. I don't know, but this can be run from a arm board, e.g., raspberry pi, or a luban cat.
+   Detailed installation process:
+       cd ~/droneyee_adapter/mavlink-router/mavlink-router/
+       chmod 777 autogen.sh 
+       ./autogen.sh 
+       chmod 777 configure
+       ./configure CFLAGS='-g -O2' CXXFLAGS='-g -O2' --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib 
+       make -j4
+       sudo make install
+       ## finally test if success
+       cd ~/
+       mavlink-routerd 
 
-3. MODIFY this readme for specific drone ids: ./mavlink-routerd -e 192.168.151.168:1550x -e 192.168.151.168:1560x /dev/ttyS0:921600
 
-4. connect the FCU with QGC, modifify drone ID.
+3. MODIFY this readme for specific drone ids: ./mavlink-routerd -e 192.168.151.168:1550x -e 192.168.151.168:1560x /dev/ttyS0:921600, or mavlink-routerd -e 192.168.151.168:1550x -e 192.168.151.168:1560x /dev/ttyS0:921600
+
+4. connect the FCU with QGC, modifify drone ID: MAV_SYS_ID, which is identical to the number above, MAINTAIN MAV_COMP_ID = 1 UNchanged !
+
+   e.g., for uav 3, MAV_SYS_ID = 3, ./mavlink-routerd -e 192.168.151.168:15503 -e 192.168.151.168:15603 /dev/ttyS0:921600
+
