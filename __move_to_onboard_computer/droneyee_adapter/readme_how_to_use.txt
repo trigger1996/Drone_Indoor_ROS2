@@ -39,6 +39,11 @@ cd droneyee_adapter/mavlink-router/mavlink-router/
 
 
 
+
+
+
+
+
 # HOW TO INSTALL
 #
 1. COPY the folder to onboard computer
@@ -63,3 +68,9 @@ cd droneyee_adapter/mavlink-router/mavlink-router/
 
    e.g., for uav 3, MAV_SYS_ID = 3, ./mavlink-routerd -e 192.168.151.168:15503 -e 192.168.151.168:15603 /dev/ttyS0:921600
 
+5. modify the other EKF parameters:
+   EKF2_EV_CTRL         7
+   EKF2_EV_DELAY        50ms
+   EKF2_HGT_REF         Range sensor
+   EKF2_OF_CTRL         Enabled
+   EKF2_RNG_CTRL        Enabled

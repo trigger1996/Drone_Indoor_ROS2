@@ -1,6 +1,9 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 from __future__ import print_function
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
 
 import os
 import math
@@ -11,11 +14,18 @@ import rospkg
 
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
+from transforms3d.euler import quat2euler, euler2quat
 from drone_ros_centeralized_control.msg import UavCmd, UavState
-
-# ====== 你现有的工具函数和类需要 import，这里假设在 utils 里 ======
-from utils import PID_Position, saturation, dead_zone, quat2euler, print_c, format_logger
-from utils import load_waypoints_from_yaml, extract_states_from_x_u_lists, format_waypoints_table_with_costs_4_single_agent
+from utils.PID       import PID_Position
+from utils.functions import saturation, dead_zone
+from utils.vis       import print_c, format_logger
+from utils.waypts    import (
+    load_waypoints_from_yaml,
+    load_transitions_from_yaml,
+    extract_states_from_joint_x_u_lists,
+    format_waypoint_table_4_single_agent,
+    format_waypoints_table_with_costs_4_single_agent
+)
 
 UAV_SPEED_X_DEAD_ZONE = 0.0
 UAV_MAX_SPEED_X = 0.35
@@ -40,9 +50,9 @@ class MultiDroneController(object):
             self.drone_id = drone_id
 
         pkg_path = rospkg.RosPack().get_path('drone_ros_centeralized_control')
-        default_map = os.path.join(pkg_path, 'map/mdp_planner/yaml/20250506_map_w_edges.yaml')
+        default_map = os.path.join(pkg_path, 'map/mdp_planner/yaml/20250426_map_w_edges.yaml')
         self.map_file = rospy.get_param('~map_file', default_map)
-        self.cost_multipliers = rospy.get_param('~cost_multipliers', 8.0)
+        self.cost_multipliers = rospy.get_param('~cost_multipliers', 3.5)
 
         if not os.path.isfile(self.map_file):
             rospy.logerr("Map file not found: %s" % self.map_file)
@@ -55,6 +65,7 @@ class MultiDroneController(object):
         self.is_uav_state_updated = False
 
         # Waypoint variables
+        self.x_list    = []
         self.waypoints = []
         self.sorted_waypoints = []
         self.transition_cost_list = []
@@ -63,13 +74,13 @@ class MultiDroneController(object):
         # 控制流程变量
         self.start_time = rospy.Time.now().to_sec()
         self.ctrl_cntr = 0
-        self.waypt_radius = 0.25
-        self.takeoff_duration = 4.05
+        self.waypt_radius = 0.15
+        self.takeoff_duration = 3.75
         self.target_altitude = 1.2
         self.task_start_instant = 0.
         self.task_finished_instant = 0.
         self.current_waypoint_index = 0
-        self.is_wait_until_time_exceeded = False
+        self.is_wait_until_time_exceeded = True         # TODO Critical single-agent可以关掉, multi-agent必须要打开
         self.task_start_time = None
         self.task_flag = False
         self.ready_flag = False
@@ -78,9 +89,9 @@ class MultiDroneController(object):
 
         # PID 控制器
         self.ctrl_dt = 0.05
-        self.pid_x = PID_Position(0, 0.25, 0., 0.0, self.ctrl_dt, -UAV_MAX_SPEED_X, UAV_MAX_SPEED_X)
-        self.pid_y = PID_Position(0, 0.25, 0., 0.0, self.ctrl_dt, -UAV_MAX_SPEED_Y, UAV_MAX_SPEED_Y)
-        self.pid_z = PID_Position(0, 0.85, 0.05, 0.0, self.ctrl_dt, -UAV_MAX_SPEED_Z, UAV_MAX_SPEED_Z)
+        self.pid_x = PID_Position(0, 0.25, 0.,    0.0,  self.ctrl_dt, -UAV_MAX_SPEED_X, UAV_MAX_SPEED_X)
+        self.pid_y = PID_Position(0, 0.25, 0.,    0.0,  self.ctrl_dt, -UAV_MAX_SPEED_Y, UAV_MAX_SPEED_Y)
+        self.pid_z = PID_Position(0, 0.75, 0.005, 0.05, self.ctrl_dt, -UAV_MAX_SPEED_Z, UAV_MAX_SPEED_Z, max_int=UAV_MAX_SPEED_Z * 0.5)
 
         # Publishers
         self.arm_disarm_pub = rospy.Publisher(
@@ -143,13 +154,13 @@ class MultiDroneController(object):
                 rospy.logwarn("Arming interrupted")
                 return
 
-    def load_waypts(self, x_u_list=None):
+    def load_waypts(self, x_list=None):
         """Load and process waypoints from YAML file"""
         if not self.map_file:
             rospy.logerr("No map file specified!")
             return False
-        if x_u_list is None:
-            rospy.logerr("No trajectory (x_u_list) provided for UAV {}".format(self.drone_id))
+        if x_list is None:
+            rospy.logerr("No trajectory (x_list) provided for UAV {}".format(self.drone_id))
             return False
 
         try:
@@ -163,7 +174,12 @@ class MultiDroneController(object):
                 rospy.logerr("No waypoints loaded!")
                 return False
 
-            x_list = extract_states_from_x_u_lists(x_u_list)
+            self.edges     = load_transitions_from_yaml(self.map_file)
+            if not self.waypoints:
+                rospy.logerr("No edges loaded!")
+                return False
+
+            #x_list = extract_states_from_x_u_lists(x_u_list)           # has been done outside
             self.sorted_waypoints = []  # list of (id_str, pos)
 
             for key in x_list:
@@ -173,19 +189,23 @@ class MultiDroneController(object):
                         self.sorted_waypoints.append((key_str, wp['pos']))
                         break
 
-            self.transition_cost_list = [0.0]
-            self.accumulated_time_list = [0.0]
+            # calculate transition
+            self.transition_cost_list  = [ 0. ]
+            self.accumulated_time_list = [ 0. ]
+            for i in range(1, self.sorted_waypoints.__len__()):
+                id_last = self.sorted_waypoints[i - 1][0]  # 节点 ID
+                id_curr = self.sorted_waypoints[i][0]
+                #
+                try:
+                    edge_info = self.edges[id_last][id_curr]
+                    cost_t = edge_info['weight'] * self.cost_multipliers
+                    #cost_t = 1. * self.cost_multipliers
 
-            for i in range(1, len(self.sorted_waypoints)):
-                pos_last = self.sorted_waypoints[i - 1][1]
-                pos_curr = self.sorted_waypoints[i][1]
-                dx = pos_curr[0] - pos_last[0]
-                dy = pos_curr[1] - pos_last[1]
-                dz = pos_curr[2] - pos_last[2]
-                cost_t = math.sqrt(dx ** 2 + dy ** 2 + dz ** 2) * self.cost_multipliers
-                acc_cost_t = self.accumulated_time_list[-1] + cost_t
-                self.transition_cost_list.append(cost_t)
-                self.accumulated_time_list.append(acc_cost_t)
+                    acc_cost_t = self.accumulated_time_list[self.accumulated_time_list.__len__() - 1] + cost_t
+                    self.transition_cost_list.append(cost_t)
+                    self.accumulated_time_list.append(acc_cost_t)
+                except KeyError:
+                    raise ValueError("No edge from %s to %s in map..." % (str(id_last), str(id_curr), ))
 
             formatted_table = format_waypoints_table_with_costs_4_single_agent(
                 self.sorted_waypoints,
@@ -229,7 +249,7 @@ class MultiDroneController(object):
             if cmd.linear.z > 0:
                 cmd.linear.z *= 1.25
 
-            cmd.linear.z = -abs(cmd.linear.z)  # NED frame conversion
+            cmd.linear.z = -cmd.linear.z  # NED frame conversion
         print_c(
             "[Controller] Taking off... Current: %.2fm | Target: %.2fm | Speed: %.2fm/s | Time: %.2fs" % (
                 self.uav_pose.pose.pose.position.z,
@@ -253,7 +273,7 @@ class MultiDroneController(object):
         cmd.linear.x = vx
         cmd.linear.y = vy
         cmd.linear.z = vz
-        cmd.linear.z = -abs(cmd.linear.z)  # NED frame conversion
+        cmd.linear.z = -cmd.linear.z  # NED frame conversion
 
         err_x = target[0] - px
         err_y = target[1] - py
@@ -373,8 +393,8 @@ class MultiDroneController(object):
 
     def _landing_phase(self, cmd):
         """Handle landing phase control logic"""
-        cmd.linear.z = -0.1
-        cmd.linear.z = -abs(cmd.linear.z)  # NED frame conversion
+        cmd.linear.z = -0.35
+        cmd.linear.z = -cmd.linear.z  # NED frame conversion
         
         print_c("[Controller] Landing...", color='blue', bold=True)
         
@@ -445,8 +465,15 @@ class MultiDroneController(object):
                     cmd = Twist()
                     
                     # 起飞
-                    if current_time < self.takeoff_duration:
+                    if current_time < self.takeoff_duration - 0.25:
                         cmd = self._takeoff_phase(cmd, current_time, self.target_altitude)
+                    elif current_time < self.takeoff_duration:
+                        # 等待就位阶段
+                        cmd.linear.x = 0.0
+                        cmd.linear.y = 0.0
+                        cmd.linear.z = 0.0
+                        cmd.angular.z = 0.0
+                        print_c("[Controller] Waiting for takeoff to complete...", color='yellow', bold=True)                        
                     # === 起飞后导航至初始路点（等待就位阶段） ===
                     elif not self.ready_flag:
                         cmd = self._goto_phase(cmd, current_time, self.target_altitude)
@@ -478,27 +505,21 @@ class MultiDroneController(object):
 
 
 class TeamController(object):
-    def __init__(self, joint_x_u_list, uav_ids):
+    def __init__(self, joint_x_list, uav_ids):
         """
         Args:
-            joint_x_u_list: list of tuple，例如 [('0','5'), ('1','4'), ...]
+            joint_x_list: list of tuple，例如 [['0', '1', ...], ['5', '4', ...], ...]
             uav_ids: list of int，例如 [1,2,4]，表示无人机编号
         """
         self.uav_ids = uav_ids
         self.num_drones = len(uav_ids)
-        self.joint_x_u_list = joint_x_u_list
+        self.joint_x_list = joint_x_list
         self.controllers = []
-
-        # 拆分每架无人机的轨迹
-        self.individual_x_u_lists = [[] for _ in range(self.num_drones)]
-        for joint_state in joint_x_u_list:
-            for i in range(self.num_drones):
-                self.individual_x_u_lists[i].append(joint_state[i])
 
         # 初始化 UAV 控制器
         for idx, drone_id in enumerate(uav_ids):
             ctrl = MultiDroneController(drone_id=drone_id)
-            ctrl.x_u_list = self.individual_x_u_lists[idx]
+            ctrl.x_list = self.joint_x_list[idx]
             self.controllers.append(ctrl)
 
     def start_team_mission(self):
@@ -506,7 +527,7 @@ class TeamController(object):
         import threading
         threads = []
         for ctrl in self.controllers:
-            if ctrl.load_waypts(ctrl.x_u_list):
+            if ctrl.load_waypts(ctrl.x_list):
                 ctrl.arm_drone()
                 t = threading.Thread(target=ctrl.run_mission)
                 t.start()
@@ -519,16 +540,19 @@ if __name__ == "__main__":
     try:
         rospy.init_node('team_drone_control', anonymous=True)
 
+        # TODO
         # 输入 UAV ID 序列，例如实验要控制 [1,2,4]
-        uav_ids = [1, 2, 4]
+        uav_ids = [2, 1]                        # 这个是有顺序的
 
-        # 假设 x_u_list_str 是从文件或上层生成的字符串
-        x_u_list_str = "('0','5') (('a',),('a',)) ('1','4') (('a',),('a',)) ..."
-        joint_x_u_list = extract_states_from_x_u_lists(x_u_list_str)
-
+        # 
+        # TODO
+        # modify here
+        x_u_list_str = """'('0', '5')' '(('b',), ('b',))' '('2', '6')' '(('a',), ('a',))' '('3', '4')' '(('b',), ('b',))' '('0', '2')' '(('b',), ('a',))' '('2', '3')' '(('a',), ('b',))' '('3', '0')' '(('b',), ('b',))' '('0', '2')' '(('b',), ('a',))' '('2', '3')' '(('a',), ('b',))' '('3', '0')' '(('b',), ('b',))' '('0', '2')' '(('b',), ('a',))' '('2', '3')' '(('a',), ('b',))' '('3', '0')' '(('b',), ('b',))' '('4', '3')' '(('a',), ('b',))' '('5', '4')' '(('b',), ('a',))' '('6', '3')' '(('b',), ('b',))' '('6', '0')' '(('a',), ('a',))' '('4', '1')' '(('b',), ('a',))' '('2', '0')' '(('a',), ('b',))' '('3', '2')' '(('b',), ('a',))' '('0', '3')' '(('b',), ('b',))' '('2', '0')' '(('a',), ('b',))' '('3', '2')' '(('b',), ('a',))' '('0', '3')'"""
+        #
+        joint_x_u_list = extract_states_from_joint_x_u_lists(x_u_list_str, num_drones=len(uav_ids))
+        
         team_ctrl = TeamController(joint_x_u_list, uav_ids)
         team_ctrl.start_team_mission()
-
 
     except rospy.ROSInterruptException:
         pass

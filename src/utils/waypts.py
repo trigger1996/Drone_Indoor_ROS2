@@ -55,8 +55,10 @@ def load_transitions_from_yaml(yaml_path, is_visualize=True):
     yaml_path = os.path.abspath(yaml_path)
 
     with open(yaml_path, 'r') as file:
-        # 读取 YAML 文件内容
-        yaml_data = yaml.load(file, Loader=yaml.UnsafeLoader)
+        try:
+            yaml_data = yaml.load(file, Loader=yaml.UnsafeLoader)  # Python 2 兼容
+        except AttributeError:
+            yaml_data = yaml.load(file)  # 回退
 
     # 转为普通 dict
     if isinstance(yaml_data, OrderedDict):
@@ -100,40 +102,47 @@ def extract_states_from_joint_x_u_lists(x_u_list_str, num_drones=None):
     """
     输入:
         x_u_list_str: 含联合轨迹的字符串，例如:
-            "('0','5') (('a',),('a',)) ('1','4') ..."
-        num_drones: 无人机数量（可选，推荐传入以避免歧义）
+            "('0','5','2') (('a',),('a',),('a',)) ('1','4','3') ..."
+        num_drones: 无人机数量（可选，推荐传入）
     输出:
-        list of tuple，每个元组是一时刻所有无人机的状态，例如:
-            [('0','5'), ('1','4'), ('0','3'), ...]  # 对 2 架无人机
-            [('0','5','2'), ('1','4','3'), ...]     # 对 3 架无人机
+        list of list，每个子 list 是一个无人机的完整轨迹
+        例如:
+            [[0, 1, 0],   # 第1架无人机
+             [5, 4, 3],   # 第2架无人机
+             [2, 3, 0]]   # 第3架无人机
     """
 
     if isinstance(x_u_list_str, unicode):
         x_u_list_str = x_u_list_str.encode('utf-8')
 
-    # 提取所有数字（状态编号）
+    # 提取所有数字
     numbers = re.findall(r"'(\d+)'", x_u_list_str)
 
     if not numbers:
         return []
 
+    # 转换为整数
+    numbers = [int(n) for n in numbers]
+
     # 自动推测无人机数量
     if num_drones is None:
-        # 你给的字符串是联合轨迹，每一时刻 = N 架无人机的状态
-        # 假设长度可以整除无人机数
-        for n in range(1, 10):  # 最多 10 架无人机
+        for n in range(1, 10):  # 最多支持10架
             if len(numbers) % n == 0:
                 num_drones = n
                 break
         else:
             raise ValueError("无法自动推测无人机数量，请手动传入 num_drones")
 
-    # 按照无人机数量分组
-    joint_x_u_list = []
-    for i in range(0, len(numbers), num_drones):
-        joint_x_u_list.append(tuple(numbers[i:i+num_drones]))
+    # 总步数
+    steps = len(numbers) // num_drones
 
-    return joint_x_u_list
+    # 重新分配给每个无人机
+    drone_trajs = [[] for _ in range(num_drones)]
+    for i in range(steps):
+        for d in range(num_drones):
+            drone_trajs[d].append(numbers[i * num_drones + d])
+
+    return drone_trajs
 
 
 def extract_states_for_all_robots(x_u_list_all):
@@ -276,7 +285,7 @@ def format_waypoints_table_with_costs_4_single_agent(sorted_waypoints, transitio
         color_text('dt', 'white', True).rjust(8),
         color_text('AccumT', 'white', True).rjust(10)
     )
-    print(2333)
+
     divider = color_text("-" * len(header), 'blue')
     lines = [header, divider]
 
