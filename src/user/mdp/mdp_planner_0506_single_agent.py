@@ -38,7 +38,7 @@ class MultiDroneController(object):
             raise ValueError
 
         if drone_id < 0:
-            self.drone_id = rospy.get_param('~drone_id', 2)                 # TODO
+            self.drone_id = rospy.get_param('~drone_id', 3)                 # TODO
         else:
             self.drone_id = drone_id
         
@@ -50,7 +50,7 @@ class MultiDroneController(object):
         # 设置带默认值的参数
         default_map = os.path.join(pkg_path, 'map/mdp_planner/yaml/20250506_map_w_edges.yaml')
         self.map_file = rospy.get_param('~map_file', default_map)
-        self.cost_multipliers = rospy.get_param('~cost_multipliers', 8.0)
+        self.cost_multipliers = rospy.get_param('~cost_multipliers', 6.5)
 
         # 确保路径存在
         if not os.path.isfile(self.map_file):
@@ -72,8 +72,8 @@ class MultiDroneController(object):
         # 控制流程变量
         self.start_time = rospy.Time.now().to_sec()             
         self.ctrl_cntr                   = 0
-        self.waypt_radius                = 0.25        
-        self.takeoff_duration            = 4.05     # TODO
+        self.waypt_radius                = 0.275        
+        self.takeoff_duration            = 3.25     # TODO
         self.target_altitude             = 1.2
         self.task_start_instant          = 0.
         self.task_finished_instant       = 0.
@@ -91,9 +91,9 @@ class MultiDroneController(object):
         #
         # PID 控制器
         self.ctrl_dt = 0.05
-        self.pid_x = PID_Position(0, 0.25,  0.,   0.0, self.ctrl_dt, -UAV_MAX_SPEED_X, UAV_MAX_SPEED_X)
-        self.pid_y = PID_Position(0, 0.25,  0.,   0.0, self.ctrl_dt, -UAV_MAX_SPEED_Y, UAV_MAX_SPEED_Y)
-        self.pid_z = PID_Position(0, 0.85,  0.05, 0.0, self.ctrl_dt, -UAV_MAX_SPEED_Z, UAV_MAX_SPEED_Z)
+        self.pid_x = PID_Position(0, 0.25,  0.,    0.05,  self.ctrl_dt, -UAV_MAX_SPEED_X, UAV_MAX_SPEED_X)
+        self.pid_y = PID_Position(0, 0.25,  0.,    0.05,  self.ctrl_dt, -UAV_MAX_SPEED_Y, UAV_MAX_SPEED_Y)
+        self.pid_z = PID_Position(0, 0.75,  0.005, 0.05,  self.ctrl_dt, -UAV_MAX_SPEED_Z, UAV_MAX_SPEED_Z, max_int=UAV_MAX_SPEED_Z * 0.5)
 
         # Initialize publishers
         self.arm_disarm_pub = rospy.Publisher(
@@ -196,7 +196,7 @@ class MultiDroneController(object):
             #
             # Non Opaque run
             # TODO
-            #x_u_list = """"'19' '('l',)' '18' '('u',)' '13' '('r',)' '14' '('d',)' '19' '('l',)' '18' '('u',)' '13' '('d',)' '18' '('r',)' '19' '('d',)' '24' '('l',)' '18' '('u',)' '13' '('u',)' '8' '('u',)' '3' '('d',)' '8' '('d',)' '13' '('u',)' '8' '('l',)' '7' '('r',)' '8' '('u',)' '3' '('d',)' '8' '('u',)' '3' '('l',)' '2' '('r',)' '3' '('l',)' '7' '('r',)' '8' '('l',)' '7' '('r',)' '8' '('l',)' '7' '('d',)' '12' '('l',)' '11' '('l',)' '10' '('d',)' '15' '('d',)' '20' '('r',)' '21' '('r',)' '17' '('l',)' '16' '('d',)' '21' '('r',)' '17' '('u',)' '12' '('r',)' '13' '('r',)' '14' '('l',)' '13' '('u',)' '8' '('u',)' '3' '('d',)' '8' '('d',)' '13' '('d',)' '18' '('l',)' '17' '('r',)' '18' '('r',)' '19' '('d',)' '24' '('u',)' '19' '('l',)' '18' '('l',)' '17' '('u',)' '12' '('r',)' '13' '('u',)' '8' '('u',)' '3' '('d',)' '8' '('u',)' '3' '('d',)' '8' '('d',)' '13' '('r',)' '14' '('l',)' '13' '('u',)' '8' '('d',)' '13' '('u',)' '8' '('u',)' '3' '('d',)' '8' '('l',)' '7' '('l',)' '6' '('l',)' '5' '('u',)' '0' '('r',)' '1' '('l',)' '0' '('d',)' '5' '('d',)' '10' '('r',)' '11' '('u',)' '6' '('d',)' '11' '('r',)' '12' '('d',)' '17' '('r',)' '18' '('u',)' '13' '('l',)' '12' '('d',)' '17' '('l',)' '16' '('u',)' '11' '('d',)' '16' '('r',)' '17' '('r',)' '18' '('l',)' '17' '('l',)' '16' '('r',)' '17' '('u',)' '12' '('d',)' '17' '('l',)' '16' '('u',)' '11' '('r',)' '12' '('r',)' '13' '('d',)' '18' '('u',)' '13' '('u',)' '8' '('l',)' '7' '('l',)' '6' '('r',)' '7' '('l',)' '6' '('u',)' '1' '('d',)' '6' '('l',)' '5' '('d',)' '10' '('u',)' '5' '('u',)' '0' '('d',)' '5' '('u',)' '0' '('d',)' '5' '('u',)' '0' '('d',)' '5' '('u',)' '0' '('r',)' '6' '('d',)' '11' '('d',)' '16' '('d',)' '21' '('u',)' '16' '('d',)' '21' '('l',)' '20' '('u',)' '15' '('r',)' '16' '('u',)' '11' '('l',)' '10' '('u',)' '5' '('u',)' '0' '('d',)' '5' '('u',)' '0' '('r',)' '6' '('l',)' '5' '('d',)' '10' '('u',)' '5' '('u',)' '0' '('r',)' '1' '('r',)' '2' '('d',)' '7' '('l',)' '6' '('r',)' '7' '('l',)' '6' '('l',)' '5' '('d',)' '10' '('d',)' '15' '('d',)' '20' '('u',)' '15'"""
+            # x_u_list = """"'19' '('l',)' '18' '('u',)' '13' '('r',)' '14' '('d',)' '19' '('l',)' '18' '('u',)' '13' '('d',)' '18' '('r',)' '19' '('d',)' '24' '('l',)' '18' '('u',)' '13' '('u',)' '8' '('u',)' '3' '('d',)' '8' '('d',)' '13' '('u',)' '8' '('l',)' '7' '('r',)' '8' '('u',)' '3' '('d',)' '8' '('u',)' '3' '('l',)' '2' '('r',)' '3' '('l',)' '7' '('r',)' '8' '('l',)' '7' '('r',)' '8' '('l',)' '7' '('d',)' '12' '('l',)' '11' '('l',)' '10' '('d',)' '15' '('d',)' '20' '('r',)' '21' '('r',)' '17' '('l',)' '16' '('d',)' '21' '('r',)' '17' '('u',)' '12' '('r',)' '13' '('r',)' '14' '('l',)' '13' '('u',)' '8' '('u',)' '3' '('d',)' '8' '('d',)' '13' '('d',)' '18' '('l',)' '17' '('r',)' '18' '('r',)' '19' '('d',)' '24' '('u',)' '19' '('l',)' '18' '('l',)' '17' '('u',)' '12' '('r',)' '13' '('u',)' '8' '('u',)' '3' '('d',)' '8' '('u',)' '3' '('d',)' '8' '('d',)' '13' '('r',)' '14' '('l',)' '13' '('u',)' '8' '('d',)' '13' '('u',)' '8' '('u',)' '3' '('d',)' '8' '('l',)' '7' '('l',)' '6' '('l',)' '5' '('u',)' '0' '('r',)' '1' '('l',)' '0' '('d',)' '5' '('d',)' '10' '('r',)' '11' '('u',)' '6' '('d',)' '11' '('r',)' '12' '('d',)' '17' '('r',)' '18' '('u',)' '13' '('l',)' '12' '('d',)' '17' '('l',)' '16' '('u',)' '11' '('d',)' '16' '('r',)' '17' '('r',)' '18' '('l',)' '17' '('l',)' '16' '('r',)' '17' '('u',)' '12' '('d',)' '17' '('l',)' '16' '('u',)' '11' '('r',)' '12' '('r',)' '13' '('d',)' '18' '('u',)' '13' '('u',)' '8' '('l',)' '7' '('l',)' '6' '('r',)' '7' '('l',)' '6' '('u',)' '1' '('d',)' '6' '('l',)' '5' '('d',)' '10' '('u',)' '5' '('u',)' '0' '('d',)' '5' '('u',)' '0' '('d',)' '5' '('u',)' '0' '('d',)' '5' '('u',)' '0' '('r',)' '6' '('d',)' '11' '('d',)' '16' '('d',)' '21' '('u',)' '16' '('d',)' '21' '('l',)' '20' '('u',)' '15' '('r',)' '16' '('u',)' '11' '('l',)' '10' '('u',)' '5' '('u',)' '0' '('d',)' '5' '('u',)' '0' '('r',)' '6' '('l',)' '5' '('d',)' '10' '('u',)' '5' '('u',)' '0' '('r',)' '1' '('r',)' '2' '('d',)' '7' '('l',)' '6' '('r',)' '7' '('l',)' '6' '('l',)' '5' '('d',)' '10' '('d',)' '15' '('d',)' '20' '('u',)' '15'"""
             #x_u_list  = """"'19' '('l',)' '18' '('u',)' '13' '('r',)' '14' '('d',)' '19' '('l',)' '18' '('u',)' '13' '('d',)' '18' '('r',)' '19' '('d',)' '24' '('l',)' '18' '('u',)' '13' '('u',)' '8' '('u',)' '3' '('d',)' '8' '('d',)' '13' '('u',)' '8' '('l',)' '7' '('r',)' '8' '('u',)' '3' '('d',)' '8' '('u',)' '3' '('l',)' '2' '('r',)' '3' '('l',)' '7' '('r',)' '8' '('l',)' '7' '('r',)' '8' '('l',)' '7' '('d',)' '12' '('l',)' '11' '('l',)' '10' '('d',)' '15' '('d',)' '20' '('r',)' '21'"""
 
             x_list = extract_states_from_x_u_lists(x_u_list)
@@ -259,7 +259,7 @@ class MultiDroneController(object):
         default_vz = 0.85               # should be larger
         # TODO
         if self.uav_pose.pose.pose.position.z <= -0.5 or current_time < 0.5 / default_vz:
-            cmd.linear.z = default_vz
+            cmd.linear.z = -default_vz
         else:
             px = self.uav_pose.pose.pose.position.x
             py = self.uav_pose.pose.pose.position.y
@@ -268,10 +268,10 @@ class MultiDroneController(object):
             ty = py
             vx, vy, vz = self.calculate_velocity(px, py, pz, tx, ty, -self.target_altitude)
             cmd.linear.z = vz
-            if cmd.linear.z > 0:
+            if cmd.linear.z < 0:
                 cmd.linear.z *= 1.25
 
-            cmd.linear.z = -abs(cmd.linear.z)  # NED frame conversion
+            # cmd.linear.z = -cmd.linear.z  # NED frame conversion
         print_c(
             "[Controller] Taking off... Current: %.2fm | Target: %.2fm | Speed: %.2fm/s | Time: %.2fs" % (
                 self.uav_pose.pose.pose.position.z,
@@ -295,7 +295,7 @@ class MultiDroneController(object):
         cmd.linear.x = vx
         cmd.linear.y = vy
         cmd.linear.z = vz
-        cmd.linear.z = -abs(cmd.linear.z)  # NED frame conversion
+        # cmd.linear.z = -cmd.linear.z  # NED frame conversion
 
         err_x = target[0] - px
         err_y = target[1] - py
@@ -310,7 +310,7 @@ class MultiDroneController(object):
                 styles='bold'
             ))
         else:
-            if int(self.ctrl_cntr) % 10 == 0:
+            if int(self.ctrl_cntr) % 15 == 0:
                 rospy.loginfo(format_logger(
                     "[UAV{}] Moving to start point {}".format(self.drone_id, key),
                     color='blue'
@@ -388,7 +388,7 @@ class MultiDroneController(object):
             if self.current_waypoint_index < len(self.sorted_waypoints) - 1:
                 self.current_waypoint_index += 1
 
-        if int(self.ctrl_cntr) % 20 == 0:
+        if int(self.ctrl_cntr) % 25 == 0:
             rospy.loginfo(format_logger(
                 "[UAV{}] Tgt id:x/y/z: {}: {:.2f} / {:.2f} / {:.2f} | Fbk x/y/z: {:.2f} / {:.2f} / {:.2f} | Dist: {:.2f} | Vel x/y/z: {:.2f} / {:.2f} / {:.2f}".format(
                     self.drone_id,
@@ -396,10 +396,10 @@ class MultiDroneController(object):
                     target[0],
                     target[1],
                     self.target_altitude,
-                    dist,
                     px,
                     py,
                     pz,
+                    dist,                    
                     vx,
                     vy,
                     vz
@@ -415,8 +415,8 @@ class MultiDroneController(object):
 
     def _landing_phase(self, cmd):
         """Handle landing phase control logic"""
-        cmd.linear.z = -0.1
-        cmd.linear.z = -abs(cmd.linear.z)  # NED frame conversion
+        cmd.linear.z = -0.35
+        # cmd.linear.z = -cmd.linear.z  # NED frame conversion
         
         print_c("[Controller] Landing...", color='blue', bold=True)
         
@@ -487,8 +487,15 @@ class MultiDroneController(object):
                     cmd = Twist()
                     
                     # 起飞
-                    if current_time < self.takeoff_duration:
+                    if current_time < self.takeoff_duration - 0.25:
                         cmd = self._takeoff_phase(cmd, current_time, self.target_altitude)
+                    elif current_time < self.takeoff_duration:
+                        # 等待就位阶段
+                        cmd.linear.x = 0.0
+                        cmd.linear.y = 0.0
+                        cmd.linear.z = 0.0
+                        cmd.angular.z = 0.0
+                        print_c("[Controller] Waiting for takeoff to complete...", color='yellow', bold=True)     
                     # === 起飞后导航至初始路点（等待就位阶段） ===
                     elif not self.ready_flag:
                         cmd = self._goto_phase(cmd, current_time, self.target_altitude)

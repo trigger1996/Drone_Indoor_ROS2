@@ -1,7 +1,7 @@
 #
 # serial port correponding to fcu is ttyS4
 #
-sudo chmod 777 /dev/ttyS0	# S0 not S4
+sudo chmod 777 /dev/ttyS0    # S0 not S4
                                 # if you don't know which serial, then POWER UP the fcu, and cat /dev/ttyS0 | hexdump -C, if the header of the frame is 0xfd or 0xfe, then it is MAVLink
 
 
@@ -24,6 +24,11 @@ cd droneyee_adapter/mavlink-router/mavlink-router/
 #       but in this case, the uav 1 will use the pose of rigibody of droneyee5, not droneyee1
 #
 ./mavlink-routerd -e 192.168.151.168:15501 -e 192.168.151.168:15601 /dev/ttyS0:921600
+
+
+
+
+
 
 
 
@@ -63,3 +68,9 @@ cd droneyee_adapter/mavlink-router/mavlink-router/
 
    e.g., for uav 3, MAV_SYS_ID = 3, ./mavlink-routerd -e 192.168.151.168:15503 -e 192.168.151.168:15603 /dev/ttyS0:921600
 
+5. modify the other EKF parameters:
+   EKF2_EV_CTRL         7
+   EKF2_EV_DELAY        50ms
+   EKF2_HGT_REF         Range sensor
+   EKF2_OF_CTRL         Enabled
+   EKF2_RNG_CTRL        Enabled
