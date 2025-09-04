@@ -17,8 +17,8 @@ import numpy as np
 from rich.progress import track, Progress                                                                      # TODO pip3 install rich
 
 # ========== 配置 ==========
-#CASE_NAME = '0426_multi'
-CASE_NAME = '0506_single_opaque'
+CASE_NAME = '0426_multi'
+#CASE_NAME = '0506_single_opaque'
 #CASE_NAME = '0506_single_non_opaque'
 if CASE_NAME == '0426_multi':
     bag_file  = "/home/droneyee/zt_ws/bags/0426_multi_real/2025-08-23-04-26-40.bag"   				    # TODO: 替换为你的bag文件
@@ -386,7 +386,7 @@ def draw_3d_map(ax3d):
             edge_color   = [ float(c) / 255 for c in [38,  157, 128] ]
 
         ax3d.scatter(Xned, Yned, Z, c=[center_color],  edgecolors=[edge_color], s=WAYPT_SIZE, linewidths=1.5, alpha=0.85)
-        ax3d.text(Xned, Yned, Z, f"{node_id}\n{ap_2_display}", fontsize=FONT_SIZE_WAYPT, zorder=200)
+        ax3d.text(Xned, Yned, Z, f"$q_{{{node_id}}}$\n${ap_2_display}$", fontsize=FONT_SIZE_WAYPT, zorder=200)
 
     for edge in edges:
         src, dst, attr = edge
@@ -426,7 +426,7 @@ def draw_2d_map(ax2d):
             edge_color   = [ float(c) / 255 for c in [38,  157, 128] ]
 
         ax2d.scatter(Xned, Yned, c=[center_color], edgecolors=[edge_color], s=WAYPT_SIZE, linewidths=1.5, alpha=0.85)
-        ax2d.text(Xned, Yned, f"{node_id}\n{ap_2_display}", fontsize=FONT_SIZE_WAYPT, zorder=200)
+        ax2d.text(Xned, Yned, f"$q_{{{node_id}}}$\n${ap_2_display}$", fontsize=FONT_SIZE_WAYPT, zorder=200)
 
     for edge in edges:
         src, dst, attr = edge

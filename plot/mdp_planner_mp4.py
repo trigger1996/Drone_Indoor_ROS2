@@ -462,10 +462,10 @@ def draw_map(ax3d, ax2d):
             center_color = [ float(c) / 255 for c in [147, 224, 255] ]
             edge_color   = [ float(c) / 255 for c in [38,  157, 128] ]
 
-        ax3d.scatter(Xned, Yned, Z, c=center_color,  edgecolors=edge_color, s=WAYPT_SIZE, linewidths=1.5, alpha=0.85)
-        ax3d.text(Xned, Yned, Z, f"{node_id}\n{ap_2_display}", fontsize=FONT_SIZE_WAYPT, zorder=200)
-        ax2d.scatter(Xned, Yned, c=center_color,     edgecolors=edge_color, s=WAYPT_SIZE, linewidths=1.5, alpha=0.85)
-        ax2d.text(Xned, Yned, f"{node_id}\n{ap_2_display}",    fontsize=FONT_SIZE_WAYPT, zorder=200)
+        ax3d.scatter(Xned, Yned, Z, c=center_color,  edgecolors=edge_color,    s=WAYPT_SIZE, linewidths=1.5, alpha=0.85)
+        ax3d.text(Xned,    Yned, Z, f"$q_{{{node_id}}}$\n${ap_2_display}$",    fontsize=FONT_SIZE_WAYPT, zorder=200)
+        ax2d.scatter(Xned, Yned,    c=center_color,     edgecolors=edge_color, s=WAYPT_SIZE, linewidths=1.5, alpha=0.85)
+        ax2d.text(Xned,    Yned,    f"$q_{{{node_id}}}$\n${ap_2_display}$",    fontsize=FONT_SIZE_WAYPT, zorder=200)
 
     for edge in edges:
         src, dst, attr = edge
