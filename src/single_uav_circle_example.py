@@ -95,7 +95,7 @@ def set_arm_disarm_message(arm, disarm=False):
 if __name__ == "__main__":
     rospy.init_node('multi_drone_control', anonymous=True)  # 只初始化一次 ROS 节点
     
-    drone_id = 2
+    drone_id = 3
     uav_cmd_topic_name = "/cmd_arm_disarm_{0}".format(drone_id)
     cmd_vel_topic_name = "/cmd_vel_{0}".format(drone_id)  # 替换 f-string
 

@@ -1,5 +1,6 @@
 uint64 timestamp		# time since system start (microseconds)
 
+int32 id                # 无人机 ID (可选, -1 表示广播所有无人机)
 int32   mode            # 0 rate control, 
                         # 1 quaternion control, thrust[2] needed as negative
                         # 2 roll / pitch / yaw control, thrust[2] needed as negative
